@@ -253,6 +253,17 @@ export default function App() {
         <div className="nav-logo">
           <span className="nav-logo-text">Central <span>Bank</span> of Geneva</span>
         </div>
+        <div style={{display:"flex",alignItems:"center",gap:6,fontSize:11,color:"#b09098",fontWeight:500}}>
+          <span>Designed with</span>
+          <span style={{color:"#c07a8a"}}>♥</span>
+          <span>in</span>
+          {/* Swiss flag */}
+          <svg viewBox="0 0 20 20" width="18" height="18" style={{borderRadius:2,flexShrink:0}}>
+            <rect width="20" height="20" fill="#FF0000"/>
+            <rect x="8.5" y="3" width="3" height="14" fill="white"/>
+            <rect x="3" y="8.5" width="14" height="3" fill="white"/>
+          </svg>
+        </div>
         <div className="nav-right">
           {lastUpdated && <div className="live-badge"><span className="live-dot"/>Live</div>}
           <a href={BYBIT_LINK} target="_blank" rel="noreferrer" className="nav-btn">Copy Trade →</a>
@@ -266,13 +277,16 @@ export default function App() {
             <div className="pill"><span className="pill-num">1</span>Purpose</div>
           </div>
           <div className="hero-handle fade-up" style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
-            <span>@Bank_of_Geneva · Bybit Copy Trading</span>
+            <span>@Bank_of_Geneva</span>
           </div>
           <div className="fade-up d1" style={{display:"flex",alignItems:"center",gap:8,margin:"12px 0 16px",fontSize:13,color:"#8a6a70",fontWeight:500}}>
             <span>Operating in</span>
-            <div style={{display:"flex",alignItems:"center",gap:6,background:"#fff",border:"1.5px solid #f0d8dc",borderRadius:999,padding:"4px 12px"}}>
-              <svg viewBox="0 0 24 24" style={{width:14,height:14,fill:"#f7931a"}}><path d="M23 12L13 2v5C6.37 7 1 11.37 1 17c0 2.38.92 4.58 2.46 6.34C3.93 20.47 5 17.5 5 17c0-4.42 3.58-8 8-8v5l10-10z"/></svg>
-              <span style={{fontWeight:600,color:"#1a0f0f",fontSize:12}}>Bybit</span>
+            <div style={{display:"flex",alignItems:"center",gap:6,background:"#fff",border:"1.5px solid #f0d8dc",borderRadius:999,padding:"4px 14px"}}>
+              <svg viewBox="0 0 80 24" style={{height:14,width:"auto"}} xmlns="http://www.w3.org/2000/svg">
+                <text x="0" y="18" fontFamily="Arial Black, sans-serif" fontWeight="900" fontSize="20" fill="#0f1117" letterSpacing="-1">BYB</text>
+                <rect x="52" y="2" width="4" height="20" fill="#f7931a"/>
+                <text x="57" y="18" fontFamily="Arial Black, sans-serif" fontWeight="900" fontSize="20" fill="#0f1117">T</text>
+              </svg>
             </div>
           </div>
           <h1 className="hero-title fade-up d2">
@@ -309,18 +323,23 @@ export default function App() {
             <div className="perf-stats">
               <div>
                 <div className="pstat-val pos">+45.7%</div>
-                <div className="pstat-label">Return Since Inception</div>
-                <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Since Jan 2026</div>
+                <div className="pstat-label">Total return since inception</div>
+                <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Jan 2026</div>
               </div>
               <div>
                 <div className="pstat-val neg">-28.5%</div>
                 <div className="pstat-label neg">Bitcoin</div>
                 <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Same period</div>
               </div>
-              <div>
-                <div className="pstat-val">3.55</div>
-                <div className="pstat-label gray">Sharpe · APY 376%</div>
-                <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
+              <div style={{display:"flex",flexDirection:"column",gap:4}}>
+                <div>
+                  <div className="pstat-val">3.55</div>
+                  <div className="pstat-label gray">Sharpe Ratio</div>
+                </div>
+                <div style={{borderTop:"1px solid #f0d8dc",paddingTop:4}}>
+                  <div className="pstat-val" style={{fontSize:20}}>376%</div>
+                  <div className="pstat-label gray">APY</div>
+                </div>
               </div>
             </div>
 
@@ -373,7 +392,7 @@ export default function App() {
       <div className="stats-bar">
         <div className="stats-inner">
           {[
-            {v:"+45.7%",l:"Return Since Inception",pos:true},
+            {v:"+45.7%",l:"Total Return Since Inception",pos:true},
             {v:"-28.5%",l:"BTC same period",neg:true},
             {v:"3 months",l:"Track Record"},
             {v:"3.55",l:"Sharpe Ratio"},
@@ -429,8 +448,10 @@ export default function App() {
               </svg>
             </a>
             <a href={BYBIT_LINK} target="_blank" rel="noreferrer" className="social-btn" title="Bybit Copy Trading">
-              <svg viewBox="0 0 24 24" style={{width:17,height:17,fill:"#f7931a"}}>
-                <path d="M23 12L13 2v5C6.37 7 1 11.37 1 17c0 2.38.92 4.58 2.46 6.34C3.93 20.47 5 17.5 5 17c0-4.42 3.58-8 8-8v5l10-10z"/>
+              <svg viewBox="0 0 80 24" style={{height:11,width:"auto"}} xmlns="http://www.w3.org/2000/svg">
+                <text x="0" y="18" fontFamily="Arial Black, sans-serif" fontWeight="900" fontSize="20" fill="#0f1117" letterSpacing="-1">BYB</text>
+                <rect x="52" y="2" width="4" height="20" fill="#f7931a"/>
+                <text x="57" y="18" fontFamily="Arial Black, sans-serif" fontWeight="900" fontSize="20" fill="#0f1117">T</text>
               </svg>
             </a>
           </div>
