@@ -134,7 +134,7 @@ const G = () => (
     .m-pill{background:#fff;border:1px solid #f0d8dc;border-radius:8px;padding:4px 10px;font-size:10px;font-weight:600;color:#1a9e6e;}
     .stats-bar{background:#fff;border-top:1px solid #f0d8dc;border-bottom:1px solid #f0d8dc;padding:24px 48px;}
     @media(max-width:700px){.stats-bar{padding:16px 18px;}}
-    .stats-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr);}
+    .stats-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(7,1fr);}
     @media(max-width:900px){.stats-inner{grid-template-columns:repeat(3,1fr);}}
     .stat-item{padding:10px 14px;border-right:1px solid #f0d8dc;text-align:center;}
     .stat-item:last-child{border-right:none;}
@@ -251,18 +251,6 @@ export default function App() {
       {/* NAV */}
       <nav className="nav">
         <div className="nav-logo">
-          <div style={{
-            width:32, height:32, borderRadius:8, overflow:"hidden",
-            flexShrink:0, border:"1px solid #f0d8dc",
-          }}>
-            <img src="/logo.png" alt="Building" style={{
-              width:"160%", height:"160%",
-              objectFit:"cover",
-              objectPosition:"center 30%",
-              marginLeft:"-30%",
-              display:"block",
-            }}/>
-          </div>
           <span className="nav-logo-text">Central <span>Bank</span> of Geneva</span>
         </div>
         <div className="nav-right">
@@ -368,8 +356,9 @@ export default function App() {
       <div className="stats-bar">
         <div className="stats-inner">
           {[
-            {v:"+45.7%",l:"CBG Return",pos:true},
+            {v:"+45.7%",l:"Total Return",pos:true},
             {v:"-28.5%",l:"BTC same period",neg:true},
+            {v:"3 months",l:"Track Record"},
             {v:"8.12",l:"Sharpe Ratio"},
             {v:"12.0%",l:"Max Drawdown"},
             {v:"59.1%",l:"Win Rate"},
@@ -458,9 +447,7 @@ export default function App() {
       <div className="footer">
         © {new Date().getFullYear()} Central Bank of Geneva · <a href={TWITTER_LINK} target="_blank" rel="noreferrer">@Bank_of_Geneva</a> · <a href={TELEGRAM_LINK} target="_blank" rel="noreferrer">Telegram</a>
         <br/>
-        The Central Bank of Geneva is an independent, private, and fully automated trading strategy operating on Bybit. It is not affiliated with, endorsed by, or associated with any governmental institution, central bank, or state organization, including the Swiss National Bank (SNB) or any other public authority.
-        <br/>
-        For informational purposes only. Past performance is not indicative of future results. Trading crypto assets involves significant risk of loss. Bitcoin benchmark is approximate, sourced from trade execution prices.
+        The Central Bank of Geneva is an independent, private, and fully automated trading strategy operating on Bybit. It is not affiliated with, endorsed by, or associated with any governmental institution, central bank, or state organization, including the Swiss National Bank (SNB) or any other public authority. For informational purposes only. Past performance is not indicative of future results. Trading crypto assets involves significant risk of loss. Bitcoin benchmark is approximate, sourced from trade execution prices.
       </div>
     </>
   );
