@@ -288,7 +288,7 @@ export default function App() {
             <span style={{fontSize:"0.55em",fontWeight:700,letterSpacing:"-0.01em"}}>DeFi Hedge Fund</span>
           </h1>
           <p className="hero-sub fade-up d3" style={{fontStyle:"normal",marginBottom:26}}>
-            First of its kind — a fully automated Central Bank deploying mid-frequency long/short systematic strategies to serve its citizens with institutional-grade returns.
+            First of its kind — a fully automated Central Bank deploying mid-frequency long/short systematic strategies, <strong style={{color:"#c07a8a"}}>without leverage</strong>, to serve its citizens with institutional-grade returns.
           </p>
           <div className="btn-row fade-up d3">
             <a href={BYBIT_LINK} target="_blank" rel="noreferrer" className="btn-primary">Copy Trade →</a>
@@ -330,7 +330,7 @@ export default function App() {
                     <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
                   </div>
                   <div>
-                    <div className="pstat-val">376%</div>
+                    <div className="pstat-val">183%</div>
                     <div className="pstat-label gray">Annual APY</div>
                     <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
                   </div>
