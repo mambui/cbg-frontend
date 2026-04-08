@@ -254,10 +254,7 @@ export default function App() {
           <span className="nav-logo-text">Central <span>Bank</span> of Geneva</span>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:6,fontSize:11,color:"#b09098",fontWeight:500}}>
-          <span>Designed with</span>
-          <span style={{color:"#c07a8a"}}>♥</span>
-          <span>in</span>
-          {/* Swiss flag */}
+          <span>Swiss made</span>
           <svg viewBox="0 0 20 20" width="18" height="18" style={{borderRadius:2,flexShrink:0}}>
             <rect width="20" height="20" fill="#FF0000"/>
             <rect x="8.5" y="3" width="3" height="14" fill="white"/>
@@ -276,13 +273,10 @@ export default function App() {
           <div className="hero-badge fade-up">
             <div className="pill"><span className="pill-num">1</span>Purpose</div>
           </div>
-          <div className="hero-handle fade-up" style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
-            <span>@Bank_of_Geneva</span>
-          </div>
           <div className="fade-up d1" style={{display:"flex",alignItems:"center",gap:8,margin:"12px 0 16px",fontSize:13,color:"#8a6a70",fontWeight:500}}>
             <span>Operating in</span>
-            <div style={{display:"flex",alignItems:"center",gap:6,background:"#fff",border:"1.5px solid #f0d8dc",borderRadius:999,padding:"4px 14px"}}>
-              <svg viewBox="0 0 80 24" style={{height:14,width:"auto"}} xmlns="http://www.w3.org/2000/svg">
+            <div style={{display:"flex",alignItems:"center",gap:6,background:"#fff",border:"1.5px solid #f0d8dc",borderRadius:999,padding:"5px 16px"}}>
+              <svg viewBox="0 0 80 24" style={{height:18,width:"auto"}} xmlns="http://www.w3.org/2000/svg">
                 <text x="0" y="18" fontFamily="Arial Black, sans-serif" fontWeight="900" fontSize="20" fill="#0f1117" letterSpacing="-1">BYB</text>
                 <rect x="52" y="2" width="4" height="20" fill="#f7931a"/>
                 <text x="57" y="18" fontFamily="Arial Black, sans-serif" fontWeight="900" fontSize="20" fill="#0f1117">T</text>
@@ -293,9 +287,6 @@ export default function App() {
             Central Bank<br/>of Geneva<br/>
             <span style={{fontSize:"0.55em",fontWeight:700,letterSpacing:"-0.01em"}}>DeFi Hedge Fund</span>
           </h1>
-          <p className="hero-sub fade-up d3" style={{fontStyle:"italic",color:"#c07a8a",fontWeight:500,marginBottom:8}}>
-            "where returns are made"
-          </p>
           <p className="hero-sub fade-up d3" style={{fontStyle:"normal",marginBottom:26}}>
             First of its kind — a fully automated Central Bank deploying mid-frequency long/short systematic strategies to serve its citizens with institutional-grade returns.
           </p>
@@ -331,14 +322,18 @@ export default function App() {
                 <div className="pstat-label neg">Bitcoin</div>
                 <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Same period</div>
               </div>
-              <div style={{display:"flex",flexDirection:"column",gap:4}}>
-                <div>
-                  <div className="pstat-val">3.55</div>
-                  <div className="pstat-label gray">Sharpe Ratio</div>
-                </div>
-                <div style={{borderTop:"1px solid #f0d8dc",paddingTop:4}}>
-                  <div className="pstat-val" style={{fontSize:20}}>376%</div>
-                  <div className="pstat-label gray">APY</div>
+              <div style={{display:"flex",flexDirection:"column",gap:0}}>
+                <div style={{display:"flex",gap:20,alignItems:"flex-start"}}>
+                  <div>
+                    <div className="pstat-val">3.55</div>
+                    <div className="pstat-label gray">Sharpe Ratio</div>
+                    <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
+                  </div>
+                  <div>
+                    <div className="pstat-val">376%</div>
+                    <div className="pstat-label gray">Annual APY</div>
+                    <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -377,7 +372,8 @@ export default function App() {
             <div className="chart-caption">$1,000 invested in Central Bank of Geneva — since Jan 2026</div>
 
             <div className="perf-footer">
-              <strong>Central Bank of Geneva: $1,456.91</strong> vs <span className="neg">BTC: $714.89</span> per $1,000 · Max drawdown <strong>12.0%</strong> · Return <strong>+45.7%</strong>
+              <strong>Central Bank of Geneva: $1,456.91</strong> vs <span className="neg">BTC: $714.89</span> per $1,000<br/>
+              Max drawdown <strong>12.0%</strong> · Return <strong>+45.7%</strong>
               <div className="monthly-pills">
                 <span className="m-pill">Jan +18.1%</span>
                 <span className="m-pill">Feb +13.4%</span>
