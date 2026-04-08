@@ -95,8 +95,8 @@ const G = () => (
     .nav-logo-text{font-family:'Bricolage Grotesque',sans-serif;font-size:14px;font-weight:700;color:#1a0f0f;letter-spacing:-0.02em;}
     .nav-logo-text span{color:#c07a8a;}
     .nav-right{display:flex;align-items:center;gap:14px;}
-    .live-badge{display:flex;align-items:center;gap:5px;font-size:11px;color:#2da876;font-weight:500;}
-    .live-dot{width:6px;height:6px;border-radius:50%;background:#2da876;animation:pulse 2s infinite;}
+    .live-badge{display:flex;align-items:center;gap:6px;font-size:12px;color:#2da876;font-weight:700;background:rgba(45,168,118,0.08);border:1px solid rgba(45,168,118,0.25);border-radius:999px;padding:4px 12px;}
+    .live-dot{width:8px;height:8px;border-radius:50%;background:#2da876;animation:pulse 1.2s infinite;box-shadow:0 0 0 0 rgba(45,168,118,0.4);}
     .nav-btn{background:linear-gradient(135deg,#c07a8a,#a05a8a);color:#fff;border:none;border-radius:999px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:opacity 0.2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
     .nav-btn:hover{opacity:0.85;}
     .pill{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1.5px solid #e8c8cc;border-radius:999px;padding:5px 14px;font-size:12px;font-weight:500;color:#c07a8a;}
@@ -265,11 +265,24 @@ export default function App() {
           <div className="hero-badge fade-up">
             <div className="pill"><span className="pill-num">1</span>Purpose</div>
           </div>
-          <div className="hero-handle fade-up">@Bank_of_Geneva · Bybit Copy Trading</div>
-          <h1 className="hero-title fade-up d1">
-            The Automated<br/><span>Central Bank</span><br/>of Geneva
+          <div className="hero-handle fade-up" style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+            <span>@Bank_of_Geneva · Bybit Copy Trading</span>
+          </div>
+          <div className="fade-up d1" style={{display:"flex",alignItems:"center",gap:8,margin:"12px 0 16px",fontSize:13,color:"#8a6a70",fontWeight:500}}>
+            <span>Operating in</span>
+            <div style={{display:"flex",alignItems:"center",gap:6,background:"#fff",border:"1.5px solid #f0d8dc",borderRadius:999,padding:"4px 12px"}}>
+              <svg viewBox="0 0 24 24" style={{width:14,height:14,fill:"#f7931a"}}><path d="M23 12L13 2v5C6.37 7 1 11.37 1 17c0 2.38.92 4.58 2.46 6.34C3.93 20.47 5 17.5 5 17c0-4.42 3.58-8 8-8v5l10-10z"/></svg>
+              <span style={{fontWeight:600,color:"#1a0f0f",fontSize:12}}>Bybit</span>
+            </div>
+          </div>
+          <h1 className="hero-title fade-up d2">
+            Central Bank<br/>of Geneva<br/>
+            <span style={{fontSize:"0.55em",fontWeight:700,letterSpacing:"-0.01em"}}>DeFi Hedge Fund</span>
           </h1>
-          <p className="hero-sub fade-up d2">
+          <p className="hero-sub fade-up d3" style={{fontStyle:"italic",color:"#c07a8a",fontWeight:500,marginBottom:8}}>
+            "where returns are made"
+          </p>
+          <p className="hero-sub fade-up d3" style={{fontStyle:"normal",marginBottom:26}}>
             First of its kind — a fully automated Central Bank deploying mid-frequency long/short systematic strategies to serve its citizens with institutional-grade returns.
           </p>
           <div className="btn-row fade-up d3">
@@ -283,7 +296,12 @@ export default function App() {
             <div className="perf-header">
               <div>
                 <div className="perf-title">Performance vs Bitcoin</div>
-                <div className="perf-sub">{lastUpdated ? `Live · ${new Date(lastUpdated).toLocaleTimeString()}` : "Since Jan 1, 2026 · $1,000 base"}</div>
+                <div className="perf-sub" style={{display:"flex",alignItems:"center",gap:6}}>
+                  {lastUpdated
+                    ? <><span className="live-dot" style={{width:6,height:6,flexShrink:0}}/><span style={{color:"#2da876",fontWeight:600}}>Live</span><span style={{color:"#b09098"}}>· {new Date(lastUpdated).toLocaleTimeString()}</span></>
+                    : "Since Jan 2026 · $1,000 base"
+                  }
+                </div>
               </div>
               <div className="nav-dot">NAV</div>
             </div>
@@ -291,8 +309,8 @@ export default function App() {
             <div className="perf-stats">
               <div>
                 <div className="pstat-val pos">+45.7%</div>
-                <div className="pstat-label">CBG Fund</div>
-                <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Jan–Mar 2026</div>
+                <div className="pstat-label">Return Since Inception</div>
+                <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Since Jan 2026</div>
               </div>
               <div>
                 <div className="pstat-val neg">-28.5%</div>
@@ -300,14 +318,14 @@ export default function App() {
                 <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Same period</div>
               </div>
               <div>
-                <div className="pstat-val">8.12</div>
-                <div className="pstat-label gray">Sharpe Ratio</div>
+                <div className="pstat-val">3.55</div>
+                <div className="pstat-label gray">Sharpe · APY 376%</div>
                 <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
               </div>
             </div>
 
             <div className="chart-legend">
-              <div className="legend-item"><div className="legend-dot" style={{background:"#c07a8a"}}/>Central Bank of Geneva</div>
+              <div className="legend-item"><div className="legend-dot" style={{background:"#c07a8a"}}/>Return Since Inception</div>
               <div className="legend-item"><div className="legend-dot" style={{background:"#f7931a",opacity:0.7}}/>Bitcoin (BTC)</div>
             </div>
 
@@ -337,15 +355,14 @@ export default function App() {
               </AreaChart>
             </ResponsiveContainer>
 
-            <div className="chart-caption">$1,000 invested — CBG Fund vs Bitcoin — Jan–Mar 2026</div>
+            <div className="chart-caption">$1,000 invested in Central Bank of Geneva — since Jan 2026</div>
 
             <div className="perf-footer">
-              <strong>Central Bank of Geneva: $1,456.91</strong> vs <span className="neg">BTC: $714.89</span> per $1,000 since Jan 2026.
-              Max drawdown <strong>12.0%</strong> · <strong>3,595</strong> closed trades · Sharpe <strong>8.12</strong>.
+              <strong>Central Bank of Geneva: $1,456.91</strong> vs <span className="neg">BTC: $714.89</span> per $1,000 · Max drawdown <strong>12.0%</strong> · Return <strong>+45.7%</strong>
               <div className="monthly-pills">
                 <span className="m-pill">Jan +18.1%</span>
-                <span className="m-pill">Feb +15.8%</span>
-                <span className="m-pill">Mar +11.8%</span>
+                <span className="m-pill">Feb +13.4%</span>
+                <span className="m-pill">Mar +8.9%</span>
               </div>
             </div>
           </div>
@@ -356,10 +373,10 @@ export default function App() {
       <div className="stats-bar">
         <div className="stats-inner">
           {[
-            {v:"+45.7%",l:"Total Return",pos:true},
+            {v:"+45.7%",l:"Return Since Inception",pos:true},
             {v:"-28.5%",l:"BTC same period",neg:true},
             {v:"3 months",l:"Track Record"},
-            {v:"8.12",l:"Sharpe Ratio"},
+            {v:"3.55",l:"Sharpe Ratio"},
             {v:"12.0%",l:"Max Drawdown"},
             {v:"59.1%",l:"Win Rate"},
             {v:"3,595",l:"Closed Trades"},
