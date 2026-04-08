@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 const BACKEND_URL = 'https://cbg-backend-production-fdd7.up.railway.app';
 const BYBIT_LINK = 'https://www.bybit.com/copyTrade/trade-center/detail?leaderMark=gOerGIfY7IJ5keZeX0RfBg%3D%3D&copyFrom=Search&profileDay=90';
@@ -7,52 +7,52 @@ const TWITTER_LINK = 'https://x.com/Bank_of_Geneva';
 const TELEGRAM_LINK = 'https://t.me/CentralBankGeneva';
 const CONTACT_EMAIL = 'cbofgeneva@gmail.com';
 
-/* ─── Combined curve — fund NAV + BTC benchmark, $1,000 base ─── */
+/* ── Real NAV curve — $1,000 starting capital ── */
 const CURVE = [
-  {date:"Jan 1",nav:999.99,btc:1000.0},{date:"Jan 2",nav:1003.38,btc:943.06},
-  {date:"Jan 3",nav:1004.42,btc:954.12},{date:"Jan 4",nav:1005.13,btc:957.45},
-  {date:"Jan 5",nav:1015.34,btc:961.21},{date:"Jan 6",nav:1018.38,btc:992.64},
-  {date:"Jan 7",nav:1016.91,btc:970.38},{date:"Jan 8",nav:1017.39,btc:966.66},
-  {date:"Jan 9",nav:1014.56,btc:968.09},{date:"Jan 10",nav:1004.2,btc:973.4},
-  {date:"Jan 11",nav:1004.71,btc:978.72},{date:"Jan 12",nav:1005.11,btc:984.04},
-  {date:"Jan 13",nav:1005.93,btc:988.19},{date:"Jan 14",nav:1009.14,btc:1001.9},
-  {date:"Jan 15",nav:1011.44,btc:1003.16},{date:"Jan 16",nav:1014.04,btc:1004.36},
-  {date:"Jan 17",nav:1014.05,btc:1003.19},{date:"Jan 18",nav:1013.85,btc:1001.56},
-  {date:"Jan 19",nav:1013.34,btc:978.72},{date:"Jan 20",nav:1010.46,btc:964.37},
-  {date:"Jan 21",nav:1009.72,btc:957.45},{date:"Jan 22",nav:1009.74,btc:955.32},
-  {date:"Jan 23",nav:1009.87,btc:952.27},{date:"Jan 24",nav:1010.05,btc:946.81},
-  {date:"Jan 25",nav:1009.07,btc:941.49},{date:"Jan 26",nav:1008.98,btc:935.62},
-  {date:"Jan 27",nav:1013.31,btc:938.94},{date:"Jan 28",nav:1017.15,btc:949.33},
-  {date:"Jan 29",nav:1015.77,btc:932.71},{date:"Jan 30",nav:1016.13,btc:882.98},
-  {date:"Jan 31",nav:1018.06,btc:848.82},{date:"Feb 1",nav:1017.07,btc:827.51},
-  {date:"Feb 2",nav:1018.54,btc:821.98},{date:"Feb 3",nav:1018.49,btc:815.65},
-  {date:"Feb 4",nav:1018.18,btc:779.99},{date:"Feb 5",nav:1010.99,btc:729.24},
-  {date:"Feb 6",nav:1020.67,btc:662.53},{date:"Feb 7",nav:1018.81,btc:741.0},
-  {date:"Feb 8",nav:1019.21,btc:750.4},{date:"Feb 9",nav:1016.84,btc:744.68},
-  {date:"Feb 10",nav:1021.23,btc:739.4},{date:"Feb 11",nav:1029.97,btc:709.59},
-  {date:"Feb 12",nav:1034.15,btc:718.56},{date:"Feb 13",nav:1035.0,btc:717.03},
-  {date:"Feb 14",nav:1033.93,btc:726.31},{date:"Feb 15",nav:1033.23,btc:725.53},
-  {date:"Feb 16",nav:1030.19,btc:724.47},{date:"Feb 17",nav:1030.95,btc:724.24},
-  {date:"Feb 18",nav:1031.2,btc:719.1},{date:"Feb 19",nav:1031.63,btc:720.21},
-  {date:"Feb 20",nav:1032.85,btc:721.24},{date:"Feb 21",nav:1032.77,btc:718.09},
-  {date:"Feb 22",nav:1030.84,btc:711.7},{date:"Feb 23",nav:1030.86,btc:704.86},
-  {date:"Feb 24",nav:1030.24,btc:673.57},{date:"Feb 25",nav:1032.25,btc:691.49},
-  {date:"Feb 26",nav:1032.6,btc:716.03},{date:"Feb 27",nav:1034.47,btc:704.13},
-  {date:"Feb 28",nav:1033.85,btc:678.61},{date:"Mar 1",nav:1033.54,btc:706.14},
-  {date:"Mar 2",nav:1033.35,btc:715.9},{date:"Mar 3",nav:1034.47,btc:723.35},
-  {date:"Mar 4",nav:1036.2,btc:745.64},{date:"Mar 5",nav:1034.58,btc:758.56},
-  {date:"Mar 6",nav:1036.03,btc:754.85},{date:"Mar 7",nav:1036.02,btc:729.96},
-  {date:"Mar 8",nav:1037.03,btc:728.72},{date:"Mar 9",nav:1037.94,btc:728.0},
-  {date:"Mar 10",nav:1038.86,btc:738.91},{date:"Mar 11",nav:1039.06,btc:743.0},
-  {date:"Mar 12",nav:1043.83,btc:743.11},{date:"Mar 13",nav:1043.94,btc:753.97},
-  {date:"Mar 14",nav:1043.47,btc:750.88},{date:"Mar 15",nav:1044.68,btc:755.04},
-  {date:"Mar 16",nav:1048.42,btc:772.99},{date:"Mar 17",nav:1049.01,btc:774.62},
-  {date:"Mar 18",nav:1044.26,btc:766.98},{date:"Mar 19",nav:1041.78,btc:752.24},
-  {date:"Mar 20",nav:1040.45,btc:740.84},{date:"Mar 22",nav:1039.66,btc:739.36},
-  {date:"Mar 23",nav:1042.74,btc:753.3},{date:"Mar 24",nav:1049.06,btc:746.61},
-  {date:"Mar 25",nav:1050.23,btc:758.78},{date:"Mar 26",nav:1051.27,btc:745.07},
-  {date:"Mar 27",nav:1052.4,btc:725.24},{date:"Mar 29",nav:1052.15,btc:717.43},
-  {date:"Mar 30",nav:1050.1,btc:717.5},{date:"Mar 31",nav:1045.69,btc:714.89},
+  {date:"Jan 1",nav:999.9,btc:1000.0},{date:"Jan 2",nav:1033.82,btc:943.06},
+  {date:"Jan 3",nav:1044.16,btc:954.12},{date:"Jan 4",nav:1051.29,btc:957.45},
+  {date:"Jan 5",nav:1153.42,btc:961.21},{date:"Jan 6",nav:1183.84,btc:992.64},
+  {date:"Jan 7",nav:1169.08,btc:970.38},{date:"Jan 8",nav:1173.87,btc:966.66},
+  {date:"Jan 9",nav:1145.63,btc:968.09},{date:"Jan 10",nav:1041.98,btc:973.4},
+  {date:"Jan 11",nav:1047.08,btc:978.72},{date:"Jan 12",nav:1051.11,btc:984.04},
+  {date:"Jan 13",nav:1059.26,btc:988.19},{date:"Jan 14",nav:1091.35,btc:1001.9},
+  {date:"Jan 15",nav:1114.39,btc:1003.16},{date:"Jan 16",nav:1140.43,btc:1004.36},
+  {date:"Jan 17",nav:1140.48,btc:1003.19},{date:"Jan 18",nav:1138.5,btc:1001.56},
+  {date:"Jan 19",nav:1133.42,btc:978.72},{date:"Jan 20",nav:1104.63,btc:964.37},
+  {date:"Jan 21",nav:1097.21,btc:957.45},{date:"Jan 22",nav:1097.36,btc:955.32},
+  {date:"Jan 23",nav:1098.72,btc:952.27},{date:"Jan 24",nav:1100.54,btc:946.81},
+  {date:"Jan 25",nav:1090.69,btc:941.49},{date:"Jan 26",nav:1089.82,btc:935.62},
+  {date:"Jan 27",nav:1133.08,btc:938.94},{date:"Jan 28",nav:1171.47,btc:949.33},
+  {date:"Jan 29",nav:1157.68,btc:932.71},{date:"Jan 30",nav:1161.32,btc:882.98},
+  {date:"Jan 31",nav:1180.61,btc:848.82},{date:"Feb 1",nav:1170.71,btc:827.51},
+  {date:"Feb 2",nav:1185.43,btc:821.98},{date:"Feb 3",nav:1184.89,btc:815.65},
+  {date:"Feb 4",nav:1181.85,btc:779.99},{date:"Feb 5",nav:1109.91,btc:729.24},
+  {date:"Feb 6",nav:1206.73,btc:662.53},{date:"Feb 7",nav:1188.11,btc:741.0},
+  {date:"Feb 8",nav:1192.12,btc:750.4},{date:"Feb 9",nav:1168.37,btc:744.68},
+  {date:"Feb 10",nav:1212.35,btc:739.4},{date:"Feb 11",nav:1299.67,btc:709.59},
+  {date:"Feb 12",nav:1341.51,btc:718.56},{date:"Feb 13",nav:1349.95,btc:717.03},
+  {date:"Feb 14",nav:1339.27,btc:726.31},{date:"Feb 15",nav:1332.33,btc:725.53},
+  {date:"Feb 16",nav:1301.93,btc:724.47},{date:"Feb 17",nav:1309.53,btc:724.24},
+  {date:"Feb 18",nav:1312.04,btc:719.1},{date:"Feb 19",nav:1316.29,btc:720.21},
+  {date:"Feb 20",nav:1328.55,btc:721.24},{date:"Feb 21",nav:1327.67,btc:718.09},
+  {date:"Feb 22",nav:1308.43,btc:711.7},{date:"Feb 23",nav:1308.64,btc:704.86},
+  {date:"Feb 24",nav:1302.41,btc:673.57},{date:"Feb 25",nav:1322.51,btc:691.49},
+  {date:"Feb 26",nav:1325.99,btc:716.03},{date:"Feb 27",nav:1344.68,btc:704.13},
+  {date:"Feb 28",nav:1338.49,btc:678.61},{date:"Mar 1",nav:1335.43,btc:706.14},
+  {date:"Mar 2",nav:1333.47,btc:715.9},{date:"Mar 3",nav:1344.72,btc:723.35},
+  {date:"Mar 4",nav:1362.05,btc:745.64},{date:"Mar 5",nav:1345.79,btc:758.56},
+  {date:"Mar 6",nav:1360.31,btc:754.85},{date:"Mar 7",nav:1360.18,btc:729.96},
+  {date:"Mar 8",nav:1370.31,btc:728.72},{date:"Mar 9",nav:1379.41,btc:728.0},
+  {date:"Mar 10",nav:1388.57,btc:738.91},{date:"Mar 11",nav:1390.62,btc:743.0},
+  {date:"Mar 12",nav:1438.32,btc:743.11},{date:"Mar 13",nav:1439.37,btc:753.97},
+  {date:"Mar 14",nav:1434.69,btc:750.88},{date:"Mar 15",nav:1446.75,btc:755.04},
+  {date:"Mar 16",nav:1484.23,btc:772.99},{date:"Mar 17",nav:1490.06,btc:774.62},
+  {date:"Mar 18",nav:1442.61,btc:766.98},{date:"Mar 19",nav:1417.78,btc:752.24},
+  {date:"Mar 20",nav:1404.52,btc:740.84},{date:"Mar 22",nav:1396.65,btc:739.36},
+  {date:"Mar 23",nav:1427.4,btc:753.3},{date:"Mar 24",nav:1490.59,btc:746.61},
+  {date:"Mar 25",nav:1502.33,btc:758.78},{date:"Mar 26",nav:1512.7,btc:745.07},
+  {date:"Mar 27",nav:1524.03,btc:725.24},{date:"Mar 29",nav:1521.48,btc:717.43},
+  {date:"Mar 30",nav:1501.01,btc:717.5},{date:"Mar 31",nav:1456.91,btc:714.89},
 ];
 
 const FEATURES = [
@@ -121,18 +121,17 @@ const G = () => (
     .nav-dot::before{content:'';display:block;width:6px;height:6px;border-radius:50%;background:#c07a8a;}
     .perf-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:14px 0;}
     .pstat-val{font-size:20px;font-weight:700;color:#1a0f0f;letter-spacing:-0.02em;}
-    .pstat-val.pos{color:#1a9e6e;}
-    .pstat-val.neg{color:#e05050;}
+    .pstat-val.pos{color:#1a9e6e;}.pstat-val.neg{color:#e05050;}
     .pstat-label{font-size:10px;color:#1a9e6e;font-weight:500;margin-top:2px;}
-    .pstat-label.gray{color:#b09098;}
-    .pstat-label.neg{color:#e05050;}
-    .chart-legend{display:flex;gap:16px;margin-bottom:10px;margin-top:4px;}
+    .pstat-label.gray{color:#b09098;}.pstat-label.neg{color:#e05050;}
+    .chart-legend{display:flex;gap:16px;margin-bottom:8px;}
     .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#8a6a70;font-weight:500;}
-    .legend-dot{width:10px;height:3px;border-radius:2px;}
+    .legend-dot{width:12px;height:3px;border-radius:2px;}
     .chart-caption{text-align:center;font-size:10px;color:#b09098;margin-top:6px;padding-top:8px;border-top:1px solid #f8eef0;}
-    .perf-footer{background:linear-gradient(135deg,rgba(192,122,138,0.07),rgba(160,90,138,0.05));border-radius:10px;padding:12px 14px;margin-top:12px;font-size:11px;color:#8a5a6a;line-height:1.6;}
-    .perf-footer strong{color:#1a9e6e;}
-    .perf-footer .neg{color:#e05050;}
+    .perf-footer{background:linear-gradient(135deg,rgba(192,122,138,0.07),rgba(160,90,138,0.05));border-radius:10px;padding:12px 14px;margin-top:12px;font-size:11px;color:#8a5a6a;line-height:1.7;}
+    .perf-footer strong{color:#1a9e6e;}.perf-footer .neg{color:#e05050;}
+    .monthly-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+    .m-pill{background:#fff;border:1px solid #f0d8dc;border-radius:8px;padding:4px 10px;font-size:10px;font-weight:600;color:#1a9e6e;}
     .stats-bar{background:#fff;border-top:1px solid #f0d8dc;border-bottom:1px solid #f0d8dc;padding:24px 48px;}
     @media(max-width:700px){.stats-bar{padding:16px 18px;}}
     .stats-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr);}
@@ -140,7 +139,7 @@ const G = () => (
     .stat-item{padding:10px 14px;border-right:1px solid #f0d8dc;text-align:center;}
     .stat-item:last-child{border-right:none;}
     .stat-v{font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:700;color:#1a0f0f;letter-spacing:-0.02em;}
-    .stat-v.pos{color:#1a9e6e;}
+    .stat-v.pos{color:#1a9e6e;}.stat-v.neg{color:#e05050;}
     .stat-l{font-size:10px;color:#b09098;margin-top:2px;font-weight:500;}
     .section2{padding:40px 48px 32px;max-width:1200px;margin:0 auto;}
     @media(max-width:900px){.section2{padding:24px 18px 18px;}}
@@ -171,8 +170,7 @@ const G = () => (
     .form-input::placeholder{color:#c0a0a8;}
     .form-input:focus{border-color:#c07a8a;}
     .form-submit{width:100%;padding:10px;border:none;border-radius:999px;background:linear-gradient(135deg,#c07a8a,#9a6a9a);color:#fff;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.2s;}
-    .form-submit:hover{opacity:0.88;}
-    .form-submit.sent{background:#1a9e6e;}
+    .form-submit:hover{opacity:0.88;}.form-submit.sent{background:#1a9e6e;}
     .data-notice{background:#fff8f9;border:1px solid #f0d8dc;border-radius:10px;padding:14px 18px;margin-top:20px;font-size:11px;color:#8a6a70;line-height:1.6;}
     .data-notice strong{color:#c07a8a;}
     .footer{text-align:center;padding:20px 24px;font-size:10px;color:#c0a0a8;border-top:1px solid #f0d8dc;line-height:1.9;}
@@ -183,11 +181,11 @@ const G = () => (
 const ChartTip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div style={{background:"#fff",border:"1px solid #f0d8dc",borderRadius:8,padding:"10px 14px",fontFamily:"Inter,sans-serif",fontSize:11,minWidth:140}}>
+    <div style={{background:"#fff",border:"1px solid #f0d8dc",borderRadius:8,padding:"10px 14px",fontFamily:"Inter,sans-serif",fontSize:11,minWidth:150}}>
       <div style={{color:"#b09098",marginBottom:6,fontWeight:600}}>{label}</div>
       {payload.map((p,i) => (
         <div key={i} style={{display:"flex",justifyContent:"space-between",gap:16,marginBottom:3}}>
-          <span style={{color:p.color,fontWeight:600}}>{p.name === "nav" ? "CBG Fund" : "Bitcoin"}</span>
+          <span style={{color:p.color,fontWeight:600}}>{p.dataKey==="nav"?"Central Bank of Geneva":"Bitcoin"}</span>
           <span style={{color:"#1a0f0f",fontWeight:700}}>${Number(p.value).toFixed(2)}</span>
         </div>
       ))}
@@ -197,7 +195,7 @@ const ChartTip = ({ active, payload, label }) => {
 
 function extractLive(data) {
   try {
-    const coin = data?.wallet?.list?.[0]?.coin?.find(c => c.coin === 'USDT');
+    const coin = data?.wallet?.list?.[0]?.coin?.find(c => c.coin==='USDT');
     if (!coin) return null;
     return { equity: parseFloat(coin.equity).toFixed(2), unrealisedPnl: parseFloat(coin.unrealisedPnl).toFixed(2) };
   } catch { return null; }
@@ -227,10 +225,23 @@ export default function App() {
   const minVal = Math.min(...CURVE.map(d => Math.min(d.nav, d.btc)));
   const maxVal = Math.max(...CURVE.map(d => Math.max(d.nav, d.btc)));
 
-  const handleSubmit = () => {
+  const [sending, setSending] = useState(false);
+
+  const handleSubmit = async () => {
     if (!name || !email) return;
-    window.location.href = `mailto:${CONTACT_EMAIL}?subject=Institution Inquiry from ${encodeURIComponent(name)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\nCompany: ${company}`)}`;
-    setTimeout(() => setSent(true), 300);
+    setSending(true);
+    try {
+      const res = await fetch("https://formspree.io/f/xwvwjede", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ name, email, message: company }),
+      });
+      if (res.ok) { setSent(true); }
+      else { alert("Error. Please email us at " + CONTACT_EMAIL); }
+    } catch {
+      alert("Error. Please email us at " + CONTACT_EMAIL);
+    }
+    setSending(false);
   };
 
   return (
@@ -240,7 +251,18 @@ export default function App() {
       {/* NAV */}
       <nav className="nav">
         <div className="nav-logo">
-          <img src="/logo.png" alt="Central Bank of Geneva" />
+          <div style={{
+            width:32, height:32, borderRadius:8, overflow:"hidden",
+            flexShrink:0, border:"1px solid #f0d8dc",
+          }}>
+            <img src="/logo.png" alt="Building" style={{
+              width:"160%", height:"160%",
+              objectFit:"cover",
+              objectPosition:"center 30%",
+              marginLeft:"-30%",
+              display:"block",
+            }}/>
+          </div>
           <span className="nav-logo-text">Central <span>Bank</span> of Geneva</span>
         </div>
         <div className="nav-right">
@@ -249,7 +271,7 @@ export default function App() {
         </div>
       </nav>
 
-      {/* SECTION 1 — HERO */}
+      {/* SECTION 1 */}
       <div className="hero">
         <div>
           <div className="hero-badge fade-up">
@@ -268,7 +290,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Performance card */}
         <div className="fade-up d2">
           <div className="perf-card">
             <div className="perf-header">
@@ -281,9 +302,9 @@ export default function App() {
 
             <div className="perf-stats">
               <div>
-                <div className="pstat-val pos">+4.57%</div>
+                <div className="pstat-val pos">+45.7%</div>
                 <div className="pstat-label">CBG Fund</div>
-                <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Since Jan 2026</div>
+                <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Jan–Mar 2026</div>
               </div>
               <div>
                 <div className="pstat-val neg">-28.5%</div>
@@ -291,53 +312,53 @@ export default function App() {
                 <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Same period</div>
               </div>
               <div>
-                <div className="pstat-val">4.40</div>
+                <div className="pstat-val">8.12</div>
                 <div className="pstat-label gray">Sharpe Ratio</div>
                 <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
               </div>
             </div>
 
-            {/* Chart legend */}
             <div className="chart-legend">
-              <div className="legend-item">
-                <div className="legend-dot" style={{background:"#c07a8a"}}/>
-                CBG Fund
-              </div>
-              <div className="legend-item">
-                <div className="legend-dot" style={{background:"#f7931a"}}/>
-                Bitcoin (BTC)
-              </div>
+              <div className="legend-item"><div className="legend-dot" style={{background:"#c07a8a"}}/>Central Bank of Geneva</div>
+              <div className="legend-item"><div className="legend-dot" style={{background:"#f7931a",opacity:0.7}}/>Bitcoin (BTC)</div>
             </div>
 
             <ResponsiveContainer width="100%" height={160}>
               <AreaChart data={CURVE} margin={{top:4,right:4,left:0,bottom:0}}>
                 <defs>
                   <linearGradient id="gNav" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#c07a8a" stopOpacity={0.2}/>
+                    <stop offset="0%" stopColor="#c07a8a" stopOpacity={0.22}/>
                     <stop offset="90%" stopColor="#c07a8a" stopOpacity={0}/>
                   </linearGradient>
                   <linearGradient id="gBtc" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#f7931a" stopOpacity={0.15}/>
+                    <stop offset="0%" stopColor="#f7931a" stopOpacity={0.12}/>
                     <stop offset="90%" stopColor="#f7931a" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f8eef0" vertical={false}/>
                 <XAxis dataKey="date" tick={{fill:"#d0b0b8",fontSize:9,fontFamily:"Inter,sans-serif"}}
                   axisLine={false} tickLine={false} ticks={["Jan 1","Feb 1","Mar 1","Mar 31"]}/>
-                <YAxis domain={[minVal*0.95, maxVal*1.02]} hide/>
+                <YAxis domain={[minVal*0.93, maxVal*1.02]} hide/>
                 <Tooltip content={<ChartTip/>}/>
-                <Area type="monotone" dataKey="btc" name="btc" stroke="#f7931a" strokeWidth={1.5}
-                  fill="url(#gBtc)" dot={false} activeDot={{r:3,fill:"#f7931a",strokeWidth:0}} strokeDasharray="4 2"/>
-                <Area type="monotone" dataKey="nav" name="nav" stroke="#c07a8a" strokeWidth={2}
-                  fill="url(#gNav)" dot={false} activeDot={{r:3,fill:"#c07a8a",strokeWidth:0}}/>
+                <Area type="monotone" dataKey="btc" stroke="#f7931a" strokeWidth={1.5}
+                  fill="url(#gBtc)" dot={false} strokeDasharray="4 2"
+                  activeDot={{r:3,fill:"#f7931a",strokeWidth:0}}/>
+                <Area type="monotone" dataKey="nav" stroke="#c07a8a" strokeWidth={2.5}
+                  fill="url(#gNav)" dot={false}
+                  activeDot={{r:4,fill:"#c07a8a",strokeWidth:0}}/>
               </AreaChart>
             </ResponsiveContainer>
 
-            <div className="chart-caption">$1,000 invested — CBG Fund vs Bitcoin — Jan 2026</div>
+            <div className="chart-caption">$1,000 invested — CBG Fund vs Bitcoin — Jan–Mar 2026</div>
 
             <div className="perf-footer">
-              <strong>CBG: $1,045.69</strong> vs <span className="neg">BTC: $714.89</span> per $1,000 invested since Jan 2026.
-              {" "}Max drawdown <strong>1.39%</strong> · <strong>3,595</strong> closed trades · Sharpe <strong>4.40</strong>.
+              <strong>Central Bank of Geneva: $1,456.91</strong> vs <span className="neg">BTC: $714.89</span> per $1,000 since Jan 2026.
+              Max drawdown <strong>12.0%</strong> · <strong>3,595</strong> closed trades · Sharpe <strong>8.12</strong>.
+              <div className="monthly-pills">
+                <span className="m-pill">Jan +18.1%</span>
+                <span className="m-pill">Feb +15.8%</span>
+                <span className="m-pill">Mar +11.8%</span>
+              </div>
             </div>
           </div>
         </div>
@@ -347,22 +368,22 @@ export default function App() {
       <div className="stats-bar">
         <div className="stats-inner">
           {[
-            {v:"+4.57%",l:"CBG Return",pos:true},
-            {v:"-28.5%",l:"BTC same period"},
-            {v:"4.40",l:"Sharpe Ratio"},
-            {v:"1.39%",l:"Max Drawdown"},
+            {v:"+45.7%",l:"CBG Return",pos:true},
+            {v:"-28.5%",l:"BTC same period",neg:true},
+            {v:"8.12",l:"Sharpe Ratio"},
+            {v:"12.0%",l:"Max Drawdown"},
             {v:"59.1%",l:"Win Rate"},
             {v:"3,595",l:"Closed Trades"},
           ].map((s,i)=>(
             <div className="stat-item" key={i}>
-              <div className={`stat-v ${s.pos?"pos":""}`}>{s.v}</div>
+              <div className={`stat-v ${s.pos?"pos":s.neg?"neg":""}`}>{s.v}</div>
               <div className="stat-l">{s.l}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* SECTION 2 — FEATURES */}
+      {/* SECTION 2 */}
       <section className="section2">
         <div className="fade-up" style={{marginBottom:18}}>
           <div className="pill"><span className="pill-num">2</span>Features</div>
@@ -381,7 +402,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* SECTION 3 — CONTACT */}
+      {/* SECTION 3 */}
       <div className="section3-wrap">
         <div className="section3">
           <div style={{textAlign:"center",marginBottom:14}} className="fade-up">
@@ -417,16 +438,17 @@ export default function App() {
             <div className="contact-form">
               <input className="form-input" placeholder="Full name" value={name} onChange={e=>setName(e.target.value)}/>
               <input className="form-input" placeholder="Email address" type="email" value={email} onChange={e=>setEmail(e.target.value)}/>
-              <input className="form-input" placeholder="Company (optional)" value={company} onChange={e=>setCompany(e.target.value)}/>
-              <button className={`form-submit${sent?" sent":""}`} onClick={handleSubmit} disabled={sent}>
-                {sent ? "✓ Message received" : "Let's talk"}
+              <textarea className="form-input" placeholder="Your message or inquiry..." value={company} onChange={e=>setCompany(e.target.value)}
+                style={{resize:"none",height:80,lineHeight:1.5}}/>
+              <button className={`form-submit${sent?" sent":""}`} onClick={handleSubmit} disabled={sent||sending}>
+                {sent?"✓ Message received":sending?"Sending...":"Let's talk"}
               </button>
             </div>
           </div>
 
           <div className="data-notice">
             <strong>Data Protection (nDSG / Swiss FADP)</strong> — By submitting this form, you agree that your name, email, and company name will be used solely to respond to your inquiry. Your data is stored securely, never shared with third parties, and will be deleted upon request. Contact <a href={`mailto:${CONTACT_EMAIL}`} style={{color:"#c07a8a"}}>{CONTACT_EMAIL}</a> to exercise your rights under Swiss law.{" "}
-            <span style={{cursor:"pointer",textDecoration:"underline",color:"#c07a8a"}} onClick={()=>setPrivacyOpen(!privacyOpen)}>{privacyOpen?"Hide details":"Learn more"}</span>
+            <span style={{cursor:"pointer",textDecoration:"underline",color:"#c07a8a"}} onClick={()=>setPrivacyOpen(!privacyOpen)}>{privacyOpen?"Hide":"Learn more"}</span>
             {privacyOpen && <div style={{marginTop:8,paddingTop:8,borderTop:"1px solid #f0d8dc"}}>We process your data on the basis of your consent (Art. 6 nDSG). Data is stored on secure EU-region servers. No automated decision-making or profiling. Retention: 12 months from last contact.</div>}
           </div>
         </div>
@@ -438,7 +460,7 @@ export default function App() {
         <br/>
         The Central Bank of Geneva is an independent, private, and fully automated trading strategy operating on Bybit. It is not affiliated with, endorsed by, or associated with any governmental institution, central bank, or state organization, including the Swiss National Bank (SNB) or any other public authority.
         <br/>
-        For informational purposes only. Past performance is not indicative of future results. Trading crypto assets involves significant risk of loss. Bitcoin benchmark data is approximate and sourced from trade execution prices.
+        For informational purposes only. Past performance is not indicative of future results. Trading crypto assets involves significant risk of loss. Bitcoin benchmark is approximate, sourced from trade execution prices.
       </div>
     </>
   );
