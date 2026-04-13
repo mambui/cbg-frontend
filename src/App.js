@@ -60,7 +60,7 @@ const FEATURES = [
   { icon:"shield", name:"Risk-First Approach", desc:"Every position is governed by hard drawdown limits and dynamic position sizing. Capital preservation is the first mandate." },
   { icon:"chart", name:"Consistent Returns", desc:"A mean-reversion and momentum framework delivering steady performance with controlled drawdowns, even in volatile markets." },
   { icon:"hash", name:"On-Chain Transparency", desc:"All operations executed and verifiable on Bybit. Real-time visibility into performance, trades, and fund flows — no black boxes." },
-  { icon:"server", name:"Institutional Infrastructure", desc:"Automated execution, independent accounting, and battle-tested risk systems bringing professional-grade infrastructure to every citizen." },
+  { icon:"server", name:"Institutional Infrastructure", desc:"Automated execution, independent accounting, and battle-tested risk systems bringing professional-grade infrastructure to every user." },
   { icon:"globe", name:"Accessible to All", desc:"As a Bybit Copy Trading strategy, Elevano Capital opens institutional-quality systematic trading to users worldwide." },
 ];
 
@@ -216,8 +216,8 @@ export default function App() {
   const getRawSlice = () => {
     if (chartFilter === "1D") return CURVE.slice(-1);
     if (chartFilter === "5D") return CURVE.slice(-5);
-    if (chartFilter === "1M") return CURVE.slice(-22);
-    if (chartFilter === "6M") return CURVE.slice(-130);
+    if (chartFilter === "1M") return CURVE.slice(-30);
+    if (chartFilter === "6M") return CURVE.slice(-180);
     return CURVE;
   };
 
