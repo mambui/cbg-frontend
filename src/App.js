@@ -311,21 +311,37 @@ export default function App() {
   const apyVal = n > 1 ? (parseFloat(navReturn) / n * 365) : 0;
   const apy = n > 1 ? apyVal.toFixed(0) + "%" : "—";
 
-  // Dynamic monthly returns from navHistory
+  // Dynamic monthly returns from navHistory — last day of prev month as base
   const monthlyPills = (() => {
     if (!navHistory.length) return [];
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    
+    // Group by month
     const byMonth = {};
     for (const row of navHistory) {
       const d = new Date(row.date);
       const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth()).padStart(2,'0')}`;
-      if (!byMonth[key]) byMonth[key] = { label: months[d.getUTCMonth()], rows: [] };
-      byMonth[key].rows.push(parseFloat(row.nav));
+      if (!byMonth[key]) byMonth[key] = [];
+      byMonth[key].push({ date: row.date, nav: parseFloat(row.nav) });
     }
-    return Object.entries(byMonth).sort().map(([key, { label, rows }]) => {
-      const start = rows[0];
-      const end = rows[rows.length-1];
-      const ret = ((end - start) / start * 100).toFixed(1);
+    
+    const sortedMonths = Object.keys(byMonth).sort();
+    return sortedMonths.map((key, i) => {
+      const rows = byMonth[key].sort((a,b) => a.date.localeCompare(b.date));
+      const label = months[parseInt(key.split('-')[1])];
+      
+      // Use last day of previous month as start, or first day of current month if no prev
+      let startNav;
+      if (i === 0) {
+        startNav = rows[0].nav;
+      } else {
+        const prevKey = sortedMonths[i-1];
+        const prevRows = byMonth[prevKey].sort((a,b) => a.date.localeCompare(b.date));
+        startNav = prevRows[prevRows.length-1].nav;
+      }
+      
+      const endNav = rows[rows.length-1].nav;
+      const ret = ((endNav - startNav) / startNav * 100).toFixed(1);
       const pos = parseFloat(ret) >= 0;
       return { label: `${label} ${pos?'+':''}${ret}%`, pos };
     });
@@ -348,9 +364,40 @@ export default function App() {
     return { btcMaxDD: (maxDD*100).toFixed(1)+"%", btcSharpe: sh };
   })();
 
-  const periodLabel = chartFilter === "YTD" ? "Since Jan 2026" : chartFilter === "Max" ? "All time" : `Last ${chartFilter}`;
+  // BTC monthly pills from navHistory btc_price
+  const btcMonthlyPills = (() => {
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const withBtc = navHistory.filter(r => r.btc_price);
+    if (!withBtc.length) return [];
+    
+    const byMonth = {};
+    for (const row of withBtc) {
+      const d = new Date(row.date);
+      const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth()).padStart(2,'0')}`;
+      if (!byMonth[key]) byMonth[key] = [];
+      byMonth[key].push({ date: row.date, price: parseFloat(row.btc_price) });
+    }
+    
+    const sortedMonths = Object.keys(byMonth).sort();
+    return sortedMonths.map((key, i) => {
+      const rows = byMonth[key].sort((a,b) => a.date.localeCompare(b.date));
+      const label = months[parseInt(key.split('-')[1])];
+      let startPrice;
+      if (i === 0) {
+        startPrice = rows[0].price;
+      } else {
+        const prevKey = sortedMonths[i-1];
+        const prevRows = byMonth[prevKey].sort((a,b) => a.date.localeCompare(b.date));
+        startPrice = prevRows[prevRows.length-1].price;
+      }
+      const endPrice = rows[rows.length-1].price;
+      const ret = ((endPrice - startPrice) / startPrice * 100).toFixed(1);
+      const pos = parseFloat(ret) >= 0;
+      return { label: `${label} ${pos?'+':''}${ret}%`, pos };
+    });
+  })();
 
-  useEffect(() => {
+  const periodLabel = chartFilter === "YTD" ? "Since Jan 2026" : chartFilter === "Max" ? "All time" : `Last ${chartFilter}`;
     const fetch_ = async () => {
       try {
         const res = await fetch(`${BACKEND_URL}/api/stats`);
@@ -538,12 +585,26 @@ export default function App() {
             <div className="chart-caption">$1,000 invested in Elevano Capital — since Jan 2026</div>
 
             <div className="perf-footer">
-              <div style={{color:"#b09098",marginBottom:4}}>{periodLabel}</div>
-              <strong>Elevano Capital: {navReturnLabel}</strong> · Max drawdown <strong>{maxDDLabel}</strong> · Sharpe <strong>{sharpe}</strong> · Win rate <strong>{winRate}</strong>
-              <br/>
-              <span className="neg">BTC: {btcReturnLabel}</span> · Max drawdown <strong>{btcMaxDD}</strong> · Sharpe <strong>{btcSharpe}</strong>
-              <div className="monthly-pills">
+              <div style={{color:"#b09098",marginBottom:8,fontWeight:600}}>{periodLabel}</div>
+
+              {/* Elevano row */}
+              <div style={{marginBottom:6}}>
+                <strong>Elevano Capital: {navReturnLabel}</strong>
+                {" · "}Max drawdown <strong style={{color:"#1a0f0f"}}>{maxDDLabel}</strong>
+              </div>
+              <div className="monthly-pills" style={{marginBottom:10}}>
                 {monthlyPills.map((p,i) => (
+                  <span key={i} className="m-pill" style={{color: p.pos ? "#1a9e6e" : "#e05050"}}>{p.label}</span>
+                ))}
+              </div>
+
+              {/* BTC row */}
+              <div style={{marginBottom:6}}>
+                <span className="neg">BTC: {btcReturnLabel}</span>
+                {" · "}Max drawdown <strong style={{color:"#1a0f0f"}}>{btcMaxDD}</strong>
+              </div>
+              <div className="monthly-pills">
+                {btcMonthlyPills.map((p,i) => (
                   <span key={i} className="m-pill" style={{color: p.pos ? "#1a9e6e" : "#e05050"}}>{p.label}</span>
                 ))}
               </div>
