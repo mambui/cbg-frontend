@@ -201,6 +201,19 @@ function extractLive(data) {
   } catch { return null; }
 }
 
+function FAQItem({ q, a }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div style={{borderBottom:"1px solid #f0d8dc",padding:"18px 0",cursor:"pointer"}} onClick={()=>setOpen(!open)}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:16}}>
+        <div style={{fontFamily:"'Bricolage Grotesque',sans-serif",fontWeight:700,fontSize:14,color:"#1a0f0f",lineHeight:1.4}}>{q}</div>
+        <div style={{fontSize:18,color:"#c07a8a",flexShrink:0,transition:"transform 0.2s",transform:open?"rotate(45deg)":"rotate(0deg)"}}>+</div>
+      </div>
+      {open && <div style={{marginTop:12,fontSize:13,color:"#7a5060",lineHeight:1.7}}>{a}</div>}
+    </div>
+  );
+}
+
 export default function App() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -498,11 +511,122 @@ export default function App() {
         </div>
       </section>
 
-      {/* SECTION 3 */}
+      {/* SECTION 3 — HOW IT WORKS */}
+      <section style={{padding:"40px 48px 32px",background:"#fff",borderTop:"1px solid #f0d8dc"}}>
+        <div style={{maxWidth:1100,margin:"0 auto"}}>
+          <div className="fade-up" style={{marginBottom:18}}>
+            <div className="pill"><span className="pill-num">3</span>How it works</div>
+          </div>
+          <div className="gradient-headline fade-up d1" style={{marginBottom:40}}>
+            Simple. Transparent. Yours.
+          </div>
+
+          {/* Flow diagram */}
+          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:0,flexWrap:"wrap",marginBottom:40}}>
+            {[
+              { icon:"🏦", label:"Elevano Capital", sub:"trades on Bybit" },
+              { arrow:"→" },
+              { icon:"⚡", label:"Instant Mirror", sub:"under 1 second" },
+              { arrow:"→" },
+              { icon:"👤", label:"Your Bybit Account", sub:"your funds, your custody" },
+            ].map((item, i) => item.arrow ? (
+              <div key={i} style={{fontSize:28,color:"#e0c0c4",padding:"0 16px",fontWeight:300}}>→</div>
+            ) : (
+              <div key={i} className="fade-up" style={{
+                background:"#fdf8f8",border:"1.5px solid #f0d8dc",borderRadius:16,
+                padding:"24px 28px",textAlign:"center",minWidth:180,
+                animationDelay:`${i*0.1}s`
+              }}>
+                <div style={{fontSize:32,marginBottom:10}}>{item.icon}</div>
+                <div style={{fontFamily:"'Bricolage Grotesque',sans-serif",fontWeight:700,fontSize:14,color:"#1a0f0f",marginBottom:4}}>{item.label}</div>
+                <div style={{fontSize:11,color:"#b09098"}}>{item.sub}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Fee structure */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:16}}>
+            {[
+              { icon:"💰", title:"You keep 90%", desc:"of all profits generated in your account." },
+              { icon:"🤝", title:"10% performance fee", desc:"Only when you profit. If you don't win, we don't earn." },
+              { icon:"🚫", title:"No other fees", desc:"No management fee, no hidden charges, no subscriptions." },
+              { icon:"🔒", title:"Full custody", desc:"Your funds stay in your Bybit account at all times. We never touch them." },
+            ].map((item, i) => (
+              <div key={i} className="fade-up" style={{
+                background:"#fdf8f8",border:"1.5px solid #f0d8dc",borderRadius:14,
+                padding:"20px",animationDelay:`${i*0.08}s`
+              }}>
+                <div style={{fontSize:24,marginBottom:10}}>{item.icon}</div>
+                <div style={{fontWeight:700,fontSize:13,color:"#1a0f0f",marginBottom:6}}>{item.title}</div>
+                <div style={{fontSize:12,color:"#7a5060",lineHeight:1.6}}>{item.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Risk warning */}
+          <div style={{
+            marginTop:24,
+            background:"rgba(192,122,138,0.06)",
+            border:"1.5px solid rgba(192,122,138,0.25)",
+            borderRadius:14,
+            padding:"16px 20px",
+            display:"flex",
+            alignItems:"flex-start",
+            gap:12,
+          }}>
+            <span style={{fontSize:20,flexShrink:0}}>⚠️</span>
+            <div style={{fontSize:13,color:"#7a5060",lineHeight:1.7}}>
+              <strong style={{color:"#c07a8a"}}>Important risk notice:</strong> We highly encourage users to follow Elevano Capital <strong>1-to-1</strong> and not take any additional leverage beyond our own position sizing. Adding extra risk on top of our strategy can lead to <strong>liquidation</strong>. Copy us as-is — that's how the strategy is designed to work.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 4 — FAQ */}
+      <section style={{padding:"40px 48px 32px",background:"#fdf8f8",borderTop:"1px solid #f0d8dc"}}>
+        <div style={{maxWidth:800,margin:"0 auto"}}>
+          <div className="fade-up" style={{marginBottom:18}}>
+            <div className="pill"><span className="pill-num">4</span>FAQ</div>
+          </div>
+          <h2 style={{fontFamily:"'Bricolage Grotesque',sans-serif",fontSize:"clamp(24px,3vw,36px)",fontWeight:700,letterSpacing:"-0.02em",color:"#1a0f0f",marginBottom:32,lineHeight:1.15}}>
+            Frequently asked questions
+          </h2>
+          <div style={{display:"flex",flexDirection:"column",gap:2}}>
+            {[
+              {
+                q:"Why share a strategy if it's a winning one?",
+                a:"Fair question. Elevano Capital's strategy operates across a diversified portfolio of large and mid-cap crypto assets, giving it an estimated capacity of ~$17M before execution quality can potentially degrade. We are still very far from that limit. Sharing the strategy lets us scale AUM — we benefit from returns on our own capital, making it a win-win until that capacity constraint is reached."
+              },
+              {
+                q:"What is Elevano Capital's edge?",
+                a:"We exploit the asymmetry between volatility spikes and subsequent crypto returns. When volatility and market structure signal favorable forward expectancy, we take concentrated risk. When the regime deteriorates, we systematically rotate into defensive positions. A machine-learning layer helps filter false signals by estimating forward return probabilities across multiple timeframes."
+              },
+              {
+                q:"How much does copy trading cost?",
+                a:"There are no additional fees to copy Elevano Capital beyond Bybit's standard trading spreads and transaction fees. You keep 90% of your profits — 10% is our performance fee. No management fee, no hidden charges. If you win, we win."
+              },
+              {
+                q:"What is the minimum amount to start?",
+                a:"The minimum to copy Elevano Capital on Bybit is $200. Each copied position requires a minimum of $1 — positions below this threshold will not be opened. We strongly encourage users to copy Elevano Capital 1-to-1 (no additional leverage). Taking on extra risk beyond our own position sizing can lead to liquidation."
+              },
+              {
+                q:"How does copy trading work?",
+                a:"Go to Bybit Copy Trading, find Elevano Capital, enter the amount you want to allocate, and click Copy. Your account will automatically mirror our trades in real time and in direct proportion to your allocation. You can start, pause, or stop copying at any time, add or remove funds, or set a stop loss. Trades are typically executed in under a second. ⚠️ We highly encourage users to follow Elevano Capital 1-to-1 and not take additional risk — otherwise liquidation is a real possibility."
+              },
+              {
+                q:"Is my money safe?",
+                a:"Your funds stay in your own Bybit account at all times. Elevano Capital never holds or controls your capital — we only trade, you keep full custody. Bybit is a Tier-1 crypto exchange with institutional-grade security infrastructure."
+              },
+            ].map((item, i) => <FAQItem key={i} q={item.q} a={item.a} />)}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 5 — CONTACT */}
       <div className="section3-wrap">
         <div className="section3">
           <div style={{textAlign:"center",marginBottom:14}} className="fade-up">
-            <div className="pill" style={{display:"inline-flex"}}><span className="pill-num">3</span>Contact</div>
+            <div className="pill" style={{display:"inline-flex"}}><span className="pill-num">5</span>Contact</div>
           </div>
           <h2 className="s3-title fade-up d1">Maximum value through<br/>direct communication</h2>
           <p className="s3-sub fade-up d2">Connect with us through our preferred channels. Elevano Capital believes in transparent, direct communication to deliver the best value to its users.</p>
