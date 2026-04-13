@@ -61,7 +61,7 @@ const FEATURES = [
   { icon:"chart", name:"Consistent Returns", desc:"A mean-reversion and momentum framework delivering steady performance with controlled drawdowns, even in volatile markets." },
   { icon:"hash", name:"On-Chain Transparency", desc:"All operations executed and verifiable on Bybit. Real-time visibility into performance, trades, and fund flows — no black boxes." },
   { icon:"server", name:"Institutional Infrastructure", desc:"Automated execution, independent accounting, and battle-tested risk systems bringing professional-grade infrastructure to every citizen." },
-  { icon:"globe", name:"Accessible to All", desc:"As a Bybit Copy Trading strategy, the Central Bank of Geneva opens institutional-quality systematic trading to citizens worldwide." },
+  { icon:"globe", name:"Accessible to All", desc:"As a Bybit Copy Trading strategy, the Elevano Capital opens institutional-quality systematic trading to citizens worldwide." },
 ];
 
 const Ic = ({name}) => {
@@ -185,7 +185,7 @@ const ChartTip = ({ active, payload, label }) => {
       <div style={{color:"#b09098",marginBottom:6,fontWeight:600}}>{label}</div>
       {payload.map((p,i) => (
         <div key={i} style={{display:"flex",justifyContent:"space-between",gap:16,marginBottom:3}}>
-          <span style={{color:p.color,fontWeight:600}}>{p.dataKey==="nav"?"Central Bank of Geneva":"Bitcoin"}</span>
+          <span style={{color:p.color,fontWeight:600}}>{p.dataKey==="nav"?"Elevano Capital":"Bitcoin"}</span>
           <span style={{color:"#1a0f0f",fontWeight:700}}>${Number(p.value).toFixed(2)}</span>
         </div>
       ))}
@@ -369,10 +369,10 @@ export default function App() {
               </AreaChart>
             </ResponsiveContainer>
 
-            <div className="chart-caption">$1,000 invested in Central Bank of Geneva — since Jan 2026</div>
+            <div className="chart-caption">$1,000 invested in Elevano Capital — since Jan 2026</div>
 
             <div className="perf-footer">
-              <strong>Central Bank of Geneva: $1,456.91</strong> vs <span className="neg">BTC: $714.89</span> per $1,000<br/>
+              <strong>Elevano Capital: $1,456.91</strong> vs <span className="neg">BTC: $714.89</span> per $1,000<br/>
               Max drawdown <strong>12.0%</strong> · Return <strong>+45.7%</strong>
               <div className="monthly-pills">
                 <span className="m-pill">Jan +18.1%</span>
@@ -430,7 +430,7 @@ export default function App() {
             <div className="pill" style={{display:"inline-flex"}}><span className="pill-num">3</span>Contact</div>
           </div>
           <h2 className="s3-title fade-up d1">Maximum value through<br/>direct communication</h2>
-          <p className="s3-sub fade-up d2">Connect with us through our preferred channels. The Central Bank of Geneva believes in transparent, direct communication to deliver the best value to its citizens.</p>
+          <p className="s3-sub fade-up d2">Connect with us through our preferred channels. The Elevano Capital believes in transparent, direct communication to deliver the best value to its citizens.</p>
 
           <div className="socials fade-up d3">
             <a href={TWITTER_LINK} target="_blank" rel="noreferrer" className="social-btn" title="X / Twitter">
@@ -456,7 +456,7 @@ export default function App() {
             <div className="contact-left">
               <div className="contact-badge">Speak with the founders</div>
               <h3 className="contact-title">For Institutions</h3>
-              <p className="contact-desc">The Central Bank of Geneva provides solutions to institutions and family offices. We are open to partnerships, managed accounts, and collaborative opportunities.</p>
+              <p className="contact-desc">The Elevano Capital provides solutions to institutions and family offices. We are open to partnerships, managed accounts, and collaborative opportunities.</p>
             </div>
             <div className="contact-form">
               <input className="form-input" placeholder="Full name" value={name} onChange={e=>setName(e.target.value)}/>
@@ -479,9 +479,9 @@ export default function App() {
 
       {/* FOOTER */}
       <div className="footer">
-        © {new Date().getFullYear()} Central Bank of Geneva · <a href={TWITTER_LINK} target="_blank" rel="noreferrer">@Bank_of_Geneva</a> · <a href={TELEGRAM_LINK} target="_blank" rel="noreferrer">Telegram</a>
+        © {new Date().getFullYear()} Elevano Capital · <a href={TWITTER_LINK} target="_blank" rel="noreferrer">@Bank_of_Geneva</a> · <a href={TELEGRAM_LINK} target="_blank" rel="noreferrer">Telegram</a>
         <br/>
-        The Central Bank of Geneva is an independent, private, and fully automated trading strategy operating on Bybit. It is not affiliated with, endorsed by, or associated with any governmental institution, central bank, or state organization, including the Swiss National Bank (SNB) or any other public authority. For informational purposes only. Past performance is not indicative of future results. Trading crypto assets involves significant risk of loss. Bitcoin benchmark is approximate, sourced from trade execution prices.
+        For informational purposes only. Past performance is not indicative of future results. Trading crypto assets involves significant risk of loss.
       </div>
     </>
   );
