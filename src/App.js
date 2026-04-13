@@ -174,22 +174,13 @@ export default function App() {
   const [closedTrades, setClosedTrades] = useState(null);
   const [chartFilter, setChartFilter] = useState("YTD");
 
-  // ══════════════════════════════════════════════════════════
-  // FIX 1 — cleanNav: exclude nav=0 rows (Dec 31 base row)
-  // This is the root cause of ALL NaN/Infinity/spike issues.
-  // Dec 31 is only kept in navHistory for btcMonthlyPills reference.
-  // ══════════════════════════════════════════════════════════
+  // ── CLEAN: exclude nav=0 rows (Dec 31 base row) ──
   const cleanNav = navHistory.filter(r => parseFloat(r.nav) > 0);
 
-  // ══════════════════════════════════════════════════════════
-  // FIX 2 — CURVE: built from cleanNav only.
-  // btcStart = first real row (Jan 1), NOT Dec 31.
-  // Both Elevano and BTC lines start at 1000 on day 1.
-  // ══════════════════════════════════════════════════════════
+  // ── CURVE: both lines start at 1000 on Jan 1 ──
   const CURVE = (() => {
     if (!cleanNav.length) return [];
     const MO = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    // BTC reference = first cleanNav row that has a btc_price (= Jan 1)
     const firstBtcRow = cleanNav.find(r => r.btc_price);
     const btcStart = firstBtcRow ? parseFloat(firstBtcRow.btc_price) : null;
     return cleanNav
@@ -205,7 +196,6 @@ export default function App() {
       .filter(d => d.btc !== null);
   })();
 
-  // Chart filter slice
   const FILTERS = ["5D","1M","6M","YTD","1Y","Max"];
   const rawSlice = (() => {
     if (chartFilter === "5D")  return CURVE.slice(-5);
@@ -214,7 +204,6 @@ export default function App() {
     return CURVE;
   })();
 
-  // Normalize slice to start at 1000
   const sliceNavBase = rawSlice[0]?.nav || 1;
   const sliceBtcBase = rawSlice[0]?.btc || 1;
   const filteredCurve = rawSlice.map(d => ({
@@ -223,38 +212,36 @@ export default function App() {
     btc: parseFloat((d.btc / sliceBtcBase * 1000).toFixed(2)),
   }));
 
-  // ══════════════════════════════════════════════════════════
-  // METRICS — all computed from rawSlice (nav > 0 guaranteed)
-  // No more Infinity, NaN, or 100% drawdown.
-  // ══════════════════════════════════════════════════════════
+  // ── METRICS ──
   const n = rawSlice.length;
   const navStart = rawSlice[0]?.nav   || 1;
   const navEnd   = rawSlice[n-1]?.nav || 1;
   const btcS     = rawSlice[0]?.btc   || 1;
   const btcE     = rawSlice[n-1]?.btc || 1;
 
-  const navReturn = n > 1 ? ((navEnd - navStart) / navStart * 100).toFixed(1) : "0.0";
-  const btcReturn = n > 1 ? ((btcE  - btcS)      / btcS      * 100).toFixed(1) : "0.0";
+  // FIX: 2 decimal places for returns
+  const navReturn = n > 1 ? ((navEnd - navStart) / navStart * 100).toFixed(2) : "0.00";
+  const btcReturn = n > 1 ? ((btcE  - btcS)      / btcS      * 100).toFixed(2) : "0.00";
   const navReturnLabel = parseFloat(navReturn) >= 0 ? `+${navReturn}%` : `${navReturn}%`;
   const btcReturnLabel = parseFloat(btcReturn) >= 0 ? `+${btcReturn}%` : `${btcReturn}%`;
 
-  // FIX 3 — Max drawdown: first nav is real (> 0), no fake 100% spike
+  // Max drawdown (nav > 0 guaranteed — no fake 100%)
   let ddPeak = rawSlice[0]?.nav || 1, maxDD = 0;
   for (const d of rawSlice) {
     if (d.nav > ddPeak) ddPeak = d.nav;
     const dd = (ddPeak - d.nav) / ddPeak;
     if (dd > maxDD) maxDD = dd;
   }
-  const maxDDLabel = (maxDD * 100).toFixed(1) + "%";
+  const maxDDLabel = (maxDD * 100).toFixed(2) + "%";
 
-  // FIX 4 — Daily returns: no Infinity (nav > 0 guaranteed)
+  // Daily returns (no Infinity — nav > 0)
   const dailyRets = rawSlice.slice(1).map((d, i) => (d.nav - rawSlice[i].nav) / rawSlice[i].nav);
   const meanRet = dailyRets.length ? dailyRets.reduce((a,b)=>a+b,0)/dailyRets.length : 0;
   const stdRet  = dailyRets.length > 1
     ? Math.sqrt(dailyRets.reduce((a,b)=>a+(b-meanRet)**2,0)/dailyRets.length) : 0;
   const sharpe  = stdRet > 0 ? ((meanRet/stdRet)*Math.sqrt(365)).toFixed(2) : "—";
 
-  // FIX 5 — Alpha & Beta: clean daily returns, no NaN
+  // Alpha & Beta
   const { alpha, beta: betaVal } = (() => {
     if (rawSlice.length < 5) return { alpha:"—", beta:"—" };
     const navR = rawSlice.slice(1).map((d,i) => (d.nav - rawSlice[i].nav) / rawSlice[i].nav);
@@ -270,7 +257,7 @@ export default function App() {
     const varBtc = btcR.slice(0,len).reduce((a,r)=>a+(r-mB)**2,0)/len;
     if (varBtc === 0) return { alpha:"—", beta:"—" };
     const b = cov/varBtc;
-    const ann = ((mN - b*mB)*365*100).toFixed(1);
+    const ann = ((mN - b*mB)*365*100).toFixed(2);
     return { alpha: parseFloat(ann)>=0 ? `+${ann}%` : `${ann}%`, beta: b.toFixed(2) };
   })();
 
@@ -283,7 +270,7 @@ export default function App() {
     if (vals.length < 2) return "—";
     let pk=vals[0], mx=0;
     for (const v of vals) { if(v>pk) pk=v; const dd=(pk-v)/pk; if(dd>mx) mx=dd; }
-    return (mx*100).toFixed(1)+"%";
+    return (mx*100).toFixed(2)+"%";
   })();
 
   const trackRecord = (() => {
@@ -294,10 +281,7 @@ export default function App() {
     return mo <= 1 ? "1 month" : `${mo} months`;
   })();
 
-  // ══════════════════════════════════════════════════════════
-  // FIX 6 — Monthly pills Elevano: uses cleanNav (nav > 0)
-  // No more Dec NaN% or Jan +Infinity%
-  // ══════════════════════════════════════════════════════════
+  // ── MONTHLY PILLS Elevano — 2 decimals, nav > 0 ──
   const monthlyPills = (() => {
     if (!cleanNav.length) return [];
     const MO = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -315,25 +299,23 @@ export default function App() {
       const endNav = rows[rows.length-1].nav;
       let startNav;
       if (i === 0) {
-        startNav = rows[0].nav; // within first month
+        startNav = rows[0].nav;
       } else {
         const prevRows = byMonth[keys[i-1]].slice().sort((a,b)=>a.date.localeCompare(b.date));
         startNav = prevRows[prevRows.length-1].nav;
       }
       if (!startNav || startNav === 0) return null;
-      const ret = ((endNav - startNav) / startNav * 100).toFixed(1);
+      // FIX: 2 decimal places
+      const ret = ((endNav - startNav) / startNav * 100).toFixed(2);
       const pos = parseFloat(ret) >= 0;
       return { label: `${label} ${pos?'+':''}${ret}%`, pos };
     }).filter(Boolean);
   })();
 
-  // ══════════════════════════════════════════════════════════
-  // FIX 7 — BTC monthly pills: Dec 31 used as reference for Jan,
-  // but Dec 31 is NEVER shown as a pill (skipped if alone in its month)
-  // ══════════════════════════════════════════════════════════
+  // ── BTC MONTHLY PILLS — 2 decimals, Dec 31 as reference ──
   const btcMonthlyPills = (() => {
     const MO = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const withBtc = navHistory.filter(r => r.btc_price); // includes Dec 31
+    const withBtc = navHistory.filter(r => r.btc_price);
     if (!withBtc.length) return [];
     const byMonth = {};
     for (const row of withBtc) {
@@ -346,7 +328,6 @@ export default function App() {
     return keys.map((key, i) => {
       const rows = byMonth[key].slice().sort((a,b)=>a.date.localeCompare(b.date));
       const label = MO[parseInt(key.split('-')[1])];
-      // Skip first month if it has only 1 row = reference only (e.g. Dec 31 alone)
       if (i === 0 && rows.length === 1) return null;
       let startPrice;
       if (i === 0) {
@@ -357,7 +338,8 @@ export default function App() {
       }
       if (!startPrice || startPrice === 0) return null;
       const endPrice = rows[rows.length-1].price;
-      const ret = ((endPrice - startPrice) / startPrice * 100).toFixed(1);
+      // FIX: 2 decimal places
+      const ret = ((endPrice - startPrice) / startPrice * 100).toFixed(2);
       const pos = parseFloat(ret) >= 0;
       return { label: `${label} ${pos?'+':''}${ret}%`, pos };
     }).filter(Boolean);
@@ -513,10 +495,11 @@ export default function App() {
                   axisLine={false} tickLine={false} ticks={["Jan 1","Feb 1","Mar 1","Mar 31"]}/>
                 <YAxis domain={[minVal*0.93, maxVal*1.02]} hide/>
                 <Tooltip content={<ChartTip/>}/>
-                <Area type="monotone" dataKey="btc" stroke="#f7931a" strokeWidth={1.5}
+                {/* FIX: type="linear" for raw daily granularity, no smoothing */}
+                <Area type="linear" dataKey="btc" stroke="#f7931a" strokeWidth={1.5}
                   fill="url(#gBtc)" dot={false} strokeDasharray="4 2"
                   activeDot={{r:3,fill:"#f7931a",strokeWidth:0}}/>
-                <Area type="monotone" dataKey="nav" stroke="#c07a8a" strokeWidth={2.5}
+                <Area type="linear" dataKey="nav" stroke="#c07a8a" strokeWidth={2}
                   fill="url(#gNav)" dot={false}
                   activeDot={{r:4,fill:"#c07a8a",strokeWidth:0}}/>
               </AreaChart>
