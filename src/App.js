@@ -607,7 +607,7 @@ export default function App() {
           }}>
             <span style={{fontSize:20,flexShrink:0}}>⚠️</span>
             <div style={{fontSize:13,color:"#7a5060",lineHeight:1.7}}>
-              <strong style={{color:"#c07a8a"}}>Important risk notice:</strong> We highly encourage users to follow Elevano Capital <strong>1-to-1</strong> and not take any additional leverage beyond our own position sizing. Adding extra risk on top of our strategy can lead to <strong>liquidation</strong>. Copy us as-is — that's how the strategy is designed to work.
+              <strong style={{color:"#c07a8a"}}>Important risk notice:</strong> We highly encourage users to follow Elevano Capital <strong>1-to-1</strong> using <strong>Fixed Ratio</strong> copy mode — this ensures all trades are sized proportionally to your account equity. Do not add extra leverage beyond our own position sizing, as this can lead to <strong>liquidation</strong>. Copy us as-is — that's how the strategy is designed to work. Note: the <strong>Trailing Stop</strong> boxes can be left unticked — stop loss management is already handled at the strategy level.
             </div>
           </div>
         </div>
@@ -679,7 +679,7 @@ export default function App() {
                   <div style={{display:"flex",alignItems:"flex-start",gap:8,background:"rgba(192,122,138,0.08)",borderRadius:10,padding:"12px 14px"}}>
                     <span style={{fontSize:16,flexShrink:0}}>⚠️</span>
                     <div style={{fontSize:12,color:"#c07a8a",lineHeight:1.6}}>
-                      <strong>Important:</strong> Do not add extra leverage beyond our own position sizing. Copy us 1-to-1 exactly as-is — adding leverage can lead to <strong>liquidation</strong>.
+                      <strong>Important:</strong> Select <strong>Fixed Ratio</strong> copy mode so all trades are sized proportionally to your account equity. Do not change the leverage — copy us 1-to-1 exactly as-is, adding leverage can lead to <strong>liquidation</strong>. The <strong>Trailing Stop</strong> boxes can be left unticked — stop loss management is already handled at the strategy level.
                     </div>
                   </div>
                 </div>
@@ -721,11 +721,11 @@ export default function App() {
               },
               {
                 q:"What is the minimum amount to start?",
-                a:"The minimum to copy Elevano Capital on Bybit is $200. Each copied position requires a minimum of $1 — positions below this threshold will not be opened. We strongly encourage users to copy Elevano Capital 1-to-1 (no additional leverage). Taking on extra risk beyond our own position sizing can lead to liquidation."
+                a:"The minimum to copy Elevano Capital on Bybit is $200. Each copied position requires a minimum of $1 — positions below this threshold will not be opened. We strongly encourage users to select Fixed Ratio copy mode — this ensures all trades are sized proportionally to your account equity. Do not add extra leverage beyond our own position sizing, as this can lead to liquidation."
               },
               {
                 q:"How does copy trading work?",
-                a:"Go to Bybit Copy Trading, find Elevano Capital, enter the amount you want to allocate, and click Copy. Your account will automatically mirror our trades in real time and in direct proportion to your allocation. You can start, pause, or stop copying at any time, add or remove funds, or set a stop loss. Trades are typically executed in under a second. ⚠️ We highly encourage users to follow Elevano Capital 1-to-1 and not take additional risk — otherwise liquidation is a real possibility."
+                a:"Go to Bybit Copy Trading, find Elevano Capital, enter the amount you want to allocate, and click Copy. Select Fixed Ratio copy mode — all trades will be sized proportionally to your account equity. Do not change the leverage. The Trailing Stop boxes can be left unticked — stop loss management is already handled at the strategy level. You can start, pause, or stop copying at any time. Trades are typically executed in under a second. ⚠️ Copy 1-to-1 only — adding extra leverage is a real liquidation risk."
               },
               {
                 q:"Is my money safe?",
