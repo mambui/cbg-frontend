@@ -210,16 +210,18 @@ export default function App() {
   const [closedTrades, setClosedTrades] = useState(null);
   const [chartFilter, setChartFilter] = useState("YTD");
 
-  // Build CURVE from live Supabase data — BTC normalized same as NAV
+  // Build CURVE from live Supabase data
   const CURVE = (() => {
     if (!navHistory.length) return [];
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    // Find BTC start price for normalization (first row with btc_price)
-    const btcStart = navHistory.find(r => r.btc_price)?.btc_price || null;
+    const withBtc = navHistory.filter(r => r.btc_price);
+    const btcStart = withBtc.length ? withBtc[0].btc_price : null;
     return navHistory.map(row => {
       const d = new Date(row.date);
       const label = `${months[d.getUTCMonth()]} ${d.getUTCDate()}`;
-      const btc = btcStart && row.btc_price ? parseFloat((row.btc_price / btcStart * 1000).toFixed(2)) : BTC_DATA[row.date] || null;
+      const btc = btcStart && row.btc_price
+        ? parseFloat((row.btc_price / btcStart * 1000).toFixed(2))
+        : BTC_DATA[row.date] || null;
       return { date: label, nav: parseFloat(row.nav), btc };
     }).filter(d => d.btc !== null);
   })();
