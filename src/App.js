@@ -32,6 +32,11 @@ const BTC_DATA = {
   "2026-03-18":766.98,"2026-03-19":752.24,"2026-03-20":740.84,"2026-03-22":739.36,
   "2026-03-23":753.3,"2026-03-24":746.61,"2026-03-25":758.78,"2026-03-26":745.07,
   "2026-03-27":725.24,"2026-03-29":717.43,"2026-03-30":717.5,"2026-03-31":714.89,
+  "2026-04-01":718,"2026-04-02":721,"2026-04-03":713,
+  "2026-04-04":702,"2026-04-05":691,"2026-04-06":713,
+  "2026-04-07":734,"2026-04-08":745,"2026-04-09":766,
+  "2026-04-10":766,"2026-04-11":774,"2026-04-12":777,
+  "2026-04-13":753,
 };
 
 const FEATURES = [
@@ -202,19 +207,31 @@ export default function App() {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [navHistory, setNavHistory] = useState([]);
+  const [closedTrades, setClosedTrades] = useState(null);
   const [chartFilter, setChartFilter] = useState("YTD");
 
-  // Build CURVE from live Supabase data
-  const CURVE = navHistory.map(row => {
-    const d = new Date(row.date);
+  // Build CURVE from live Supabase data — BTC normalized same as NAV
+  const CURVE = (() => {
+    if (!navHistory.length) return [];
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const label = `${months[d.getUTCMonth()]} ${d.getUTCDate()}`;
-    return {
-      date: label,
-      nav: parseFloat(row.nav),
-      btc: BTC_DATA[row.date] || null,
-    };
-  }).filter(d => d.btc !== null);
+    // Find BTC start price for normalization (first row with btc_price)
+    const btcStart = navHistory.find(r => r.btc_price)?.btc_price || null;
+    return navHistory.map(row => {
+      const d = new Date(row.date);
+      const label = `${months[d.getUTCMonth()]} ${d.getUTCDate()}`;
+      const btc = btcStart && row.btc_price ? parseFloat((row.btc_price / btcStart * 1000).toFixed(2)) : BTC_DATA[row.date] || null;
+      return { date: label, nav: parseFloat(row.nav), btc };
+    }).filter(d => d.btc !== null);
+  })();
+
+  // Dynamic track record in months
+  const trackRecord = (() => {
+    if (!navHistory.length) return "3 months";
+    const first = new Date(navHistory[0].date);
+    const last = new Date(navHistory[navHistory.length-1].date);
+    const months = Math.round((last - first) / (1000 * 60 * 60 * 24 * 30));
+    return months <= 1 ? "1 month" : `${months} months`;
+  })();
 
   const FILTERS = ["1D","5D","1M","6M","YTD","1Y","Max"];
 
@@ -292,9 +309,16 @@ export default function App() {
         setNavHistory(data);
       } catch {}
     };
-    fetch_(); fetchNav();
+    const fetchClosedTrades = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/closed-trades`);
+        const data = await res.json();
+        if (data.total) setClosedTrades(data.total.toLocaleString());
+      } catch {}
+    };
+    fetch_(); fetchNav(); fetchClosedTrades();
     const iv = setInterval(fetch_, 60000);
-    const ivNav = setInterval(fetchNav, 3600000); // refresh every hour
+    const ivNav = setInterval(fetchNav, 3600000);
     return () => { clearInterval(iv); clearInterval(ivNav); };
   }, []);
 
@@ -480,11 +504,11 @@ export default function App() {
           {[
             {v:navReturnLabel, l:`Elevano · ${periodLabel}`, pos:parseFloat(navReturn)>=0, neg:parseFloat(navReturn)<0},
             {v:btcReturnLabel, l:`BTC · ${periodLabel}`, pos:parseFloat(btcReturn)>=0, neg:parseFloat(btcReturn)<0},
-            {v:"3 months", l:"Track Record"},
+            {v:trackRecord, l:"Track Record"},
             {v:sharpe, l:"Sharpe Ratio"},
             {v:maxDDLabel, l:"Max Drawdown"},
             {v:winRate, l:"Win Rate"},
-            {v:"3,595", l:"Closed Trades"},
+            {v:closedTrades || "3,595", l:"Closed Trades"},
           ].map((s,i)=>(
             <div className="stat-item" key={i}>
               <div className={`stat-v ${s.pos?"pos":s.neg?"neg":""}`}>{s.v}</div>
@@ -510,7 +534,7 @@ export default function App() {
               { icon:<svg viewBox="0 0 24 24" style={{width:28,height:28,stroke:"#fff",strokeWidth:1.5,fill:"none"}}><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>, title:"Invest alongside the trader", desc:"Elevano Capital trades its own capital using the same strategy. When you win, we win. Full alignment of interests." },
               { icon:<svg viewBox="0 0 24 24" style={{width:28,height:28,stroke:"#fff",strokeWidth:1.5,fill:"none"}}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>, title:"Full custody, always", desc:"Your funds never leave your Bybit account. We only trade — you keep full control and ownership at all times." },
               { icon:<svg viewBox="0 0 24 24" style={{width:28,height:28,stroke:"#fff",strokeWidth:1.5,fill:"none"}}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>, title:"Performance fee only", desc:"No management fee. No subscription. 10% only on profits. If you don't win, we don't earn — period." },
-              { icon:<svg viewBox="0 0 24 24" style={{width:28,height:28,stroke:"#fff",strokeWidth:1.5,fill:"none"}}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>, title:"Proven track record", desc:"+45.7% since January 2026, Sharpe ratio of 3.55, max drawdown of 12% — auditable directly on Bybit." },
+              { icon:<svg viewBox="0 0 24 24" style={{width:28,height:28,stroke:"#fff",strokeWidth:1.5,fill:"none"}}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>, title:"Proven track record", desc:`${navReturnLabel} since January 2026, Sharpe ratio of ${sharpe}, max drawdown of ${maxDDLabel} — auditable directly on Bybit.` },
             ].map((item, i) => (
               <div key={i} className="fade-up" style={{display:"flex",flexDirection:"column",alignItems:"center",gap:16,animationDelay:`${i*0.08}s`}}>
                 <div style={{width:64,height:64,borderRadius:"50%",background:"linear-gradient(135deg,#c07a8a,#a05a8a)",display:"flex",alignItems:"center",justifyContent:"center"}}>
