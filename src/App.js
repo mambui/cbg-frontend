@@ -61,7 +61,7 @@ const FEATURES = [
   { icon:"chart", name:"Consistent Returns", desc:"A mean-reversion and momentum framework delivering steady performance with controlled drawdowns, even in volatile markets." },
   { icon:"hash", name:"On-Chain Transparency", desc:"All operations executed and verifiable on Bybit. Real-time visibility into performance, trades, and fund flows — no black boxes." },
   { icon:"server", name:"Institutional Infrastructure", desc:"Automated execution, independent accounting, and battle-tested risk systems bringing professional-grade infrastructure to every citizen." },
-  { icon:"globe", name:"Accessible to All", desc:"As a Bybit Copy Trading strategy, the Elevano Capital opens institutional-quality systematic trading to citizens worldwide." },
+  { icon:"globe", name:"Accessible to All", desc:"As a Bybit Copy Trading strategy, Elevano Capital opens institutional-quality systematic trading to citizens worldwide." },
 ];
 
 const Ic = ({name}) => {
@@ -262,9 +262,9 @@ export default function App() {
     : 0;
   const sharpe = stdRet > 0 ? ((meanRet / stdRet) * Math.sqrt(365)).toFixed(2) : "—";
 
-  // APY — annualized properly, capped for short periods
+  // APY — simple annualization (return × 365/days) to avoid exponential distortion
   const apyVal = n > 1
-    ? Math.min(((navEnd/navStart) ** (365/Math.max(n,30)) - 1) * 100, 999)
+    ? (navReturn * 365 / Math.max(n, 1))
     : 0;
   const apy = n > 1 ? apyVal.toFixed(0) + "%" : "—";
 
@@ -507,7 +507,7 @@ export default function App() {
             <div className="pill" style={{display:"inline-flex"}}><span className="pill-num">3</span>Contact</div>
           </div>
           <h2 className="s3-title fade-up d1">Maximum value through<br/>direct communication</h2>
-          <p className="s3-sub fade-up d2">Connect with us through our preferred channels. The Elevano Capital believes in transparent, direct communication to deliver the best value to its citizens.</p>
+          <p className="s3-sub fade-up d2">Connect with us through our preferred channels. Elevano Capital believes in transparent, direct communication to deliver the best value to its citizens.</p>
 
           <div className="socials fade-up d3">
             <a href={TWITTER_LINK} target="_blank" rel="noreferrer" className="social-btn" title="X / Twitter">
@@ -533,7 +533,7 @@ export default function App() {
             <div className="contact-left">
               <div className="contact-badge">Speak with the founders</div>
               <h3 className="contact-title">For Institutions</h3>
-              <p className="contact-desc">The Elevano Capital provides solutions to institutions and family offices. We are open to partnerships, managed accounts, and collaborative opportunities.</p>
+              <p className="contact-desc">Elevano Capital provides solutions to institutions and family offices. We are open to partnerships, managed accounts, and collaborative opportunities.</p>
             </div>
             <div className="contact-form">
               <input className="form-input" placeholder="Full name" value={name} onChange={e=>setName(e.target.value)}/>
