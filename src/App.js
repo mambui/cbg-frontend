@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 const BACKEND_URL = 'https://cbg-backend-production-fdd7.up.railway.app';
-const BYBIT_LINK = 'https://www.bybit.com/copyTrade/trade-center/detail?leaderMark=gOerGIfY7IJ5keZeX0RfBg%3D%3D&copyFrom=Search&profileDay=90';
+const BYBIT_LINK = 'https://www.bybit.com/invite?ref=48DYXE';
+const BYBIT_COPY_PROFILE = 'https://www.bybit.com/copyTrade/trade-center/detail?leaderMark=gOerGIfY7IJ5keZeX0RfBg%3D%3D&copyFrom=Search&profileDay=90';
 const TWITTER_LINK = 'https://x.com/elevano_capital';
 const TELEGRAM_LINK = 'https://t.me/elevano_capital';
 const CONTACT_EMAIL = 'elevanocapital@gmail.com';
@@ -612,11 +613,94 @@ export default function App() {
         </div>
       </section>
 
-      {/* SECTION 4 — FAQ */}
+      {/* SECTION — HOW TO JOIN */}
+      <section style={{padding:"40px 48px 32px",background:"#fff",borderTop:"1px solid #f0d8dc"}}>
+        <div style={{maxWidth:800,margin:"0 auto"}}>
+          <div className="fade-up" style={{marginBottom:18}}>
+            <div className="pill"><span className="pill-num">4</span>How to join</div>
+          </div>
+          <h2 style={{fontFamily:"'Bricolage Grotesque',sans-serif",fontSize:"clamp(24px,3vw,36px)",fontWeight:700,letterSpacing:"-0.02em",color:"#1a0f0f",marginBottom:8,lineHeight:1.15}}>
+            Start copying in 4 steps
+          </h2>
+          <p style={{fontSize:14,color:"#7a5060",marginBottom:36,lineHeight:1.6}}>
+            No experience needed. Setup takes less than 5 minutes.
+          </p>
+
+          <div style={{display:"flex",flexDirection:"column",gap:24}}>
+
+            {/* Step 1 */}
+            <div className="fade-up" style={{background:"#fdf8f8",border:"1.5px solid #f0d8dc",borderRadius:16,padding:"24px",}}>
+              <div style={{display:"flex",gap:16,alignItems:"flex-start",marginBottom:16}}>
+                <div style={{minWidth:44,height:44,borderRadius:"50%",background:"linear-gradient(135deg,#c07a8a,#a05a8a)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:13,color:"#fff",flexShrink:0}}>01</div>
+                <div>
+                  <div style={{fontFamily:"'Bricolage Grotesque',sans-serif",fontWeight:700,fontSize:15,color:"#1a0f0f",marginBottom:4}}>Create your Bybit account</div>
+                  <div style={{fontSize:13,color:"#7a5060",lineHeight:1.65,marginBottom:8}}>Go to Bybit and create a free account. Use our referral link to get exclusive benefits.</div>
+                  <a href={BYBIT_LINK} target="_blank" rel="noreferrer" style={{display:"inline-flex",alignItems:"center",gap:6,fontSize:12,fontWeight:600,color:"#c07a8a",textDecoration:"none",borderBottom:"1px solid rgba(192,122,138,0.3)",paddingBottom:1}}>Create account on Bybit →</a>
+                  <div style={{fontSize:11,color:"#b09098",fontStyle:"italic",marginTop:6}}>Bybit is a Tier-1 crypto exchange — regulated, secure, trusted by 50M+ users worldwide.</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="fade-up" style={{background:"#fdf8f8",border:"1.5px solid #f0d8dc",borderRadius:16,padding:"24px",}}>
+              <div style={{display:"flex",gap:16,alignItems:"flex-start",marginBottom:16}}>
+                <div style={{minWidth:44,height:44,borderRadius:"50%",background:"linear-gradient(135deg,#c07a8a,#a05a8a)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:13,color:"#fff",flexShrink:0}}>02</div>
+                <div>
+                  <div style={{fontFamily:"'Bricolage Grotesque',sans-serif",fontWeight:700,fontSize:15,color:"#1a0f0f",marginBottom:4}}>Deposit funds</div>
+                  <div style={{fontSize:13,color:"#7a5060",lineHeight:1.65}}>Fund your Bybit account via bank transfer (fiat) or crypto. Minimum to start copy trading is $200.</div>
+                  <div style={{fontSize:11,color:"#b09098",fontStyle:"italic",marginTop:6}}>You can deposit in USD, EUR, or any major cryptocurrency.</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="fade-up" style={{background:"#fdf8f8",border:"1.5px solid #f0d8dc",borderRadius:16,padding:"24px",}}>
+              <div style={{display:"flex",gap:16,alignItems:"flex-start",marginBottom:16}}>
+                <div style={{minWidth:44,height:44,borderRadius:"50%",background:"linear-gradient(135deg,#c07a8a,#a05a8a)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:13,color:"#fff",flexShrink:0}}>03</div>
+                <div style={{width:"100%"}}>
+                  <div style={{fontFamily:"'Bricolage Grotesque',sans-serif",fontWeight:700,fontSize:15,color:"#1a0f0f",marginBottom:4}}>Go to Copy Trading</div>
+                  <div style={{fontSize:13,color:"#7a5060",lineHeight:1.65,marginBottom:12}}>In Bybit, navigate to <strong>Tools → Copy Trading → Copy Trading Classic</strong>. Search for <strong>"Elevano Capital"</strong> and click on the card.</div>
+                  <img src="https://www.bybit.com/common-static/cht-static/help-center-svc/article/ff375cfe4b1c2ade9d7d3e84d7a89b5a.png" alt="Bybit Copy Trading navigation" style={{width:"100%",borderRadius:10,border:"1px solid #f0d8dc",marginBottom:10}}/>
+                  <img src="https://www.bybit.com/common-static/cht-static/help-center-svc/article/17ca150a5c7f90e8a549e877eca0762b.png" alt="Find master trader" style={{width:"100%",borderRadius:10,border:"1px solid #f0d8dc",marginBottom:10}}/>
+                  <a href={BYBIT_COPY_PROFILE} target="_blank" rel="noreferrer" style={{display:"inline-flex",alignItems:"center",gap:6,fontSize:12,fontWeight:600,color:"#c07a8a",textDecoration:"none",borderBottom:"1px solid rgba(192,122,138,0.3)",paddingBottom:1}}>View Elevano Capital on Bybit →</a>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 4 */}
+            <div className="fade-up" style={{background:"rgba(192,122,138,0.04)",border:"1.5px solid rgba(192,122,138,0.25)",borderRadius:16,padding:"24px",}}>
+              <div style={{display:"flex",gap:16,alignItems:"flex-start",marginBottom:16}}>
+                <div style={{minWidth:44,height:44,borderRadius:"50%",background:"linear-gradient(135deg,#c07a8a,#a05a8a)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:13,color:"#fff",flexShrink:0}}>04</div>
+                <div style={{width:"100%"}}>
+                  <div style={{fontFamily:"'Bricolage Grotesque',sans-serif",fontWeight:700,fontSize:15,color:"#1a0f0f",marginBottom:4}}>Copy with 1-to-1 settings</div>
+                  <div style={{fontSize:13,color:"#7a5060",lineHeight:1.65,marginBottom:12}}>Set your investment amount, select <strong>Fixed Ratio</strong> copy mode, and keep leverage at <strong>1-to-1</strong>. Check the agreement box and click <strong>Copy Now</strong>.</div>
+                  <img src="https://www.bybit.com/common-static/cht-static/help-center-svc/article/538931b93676f335299975857c14ce9b.png" alt="Set investment amount" style={{width:"100%",borderRadius:10,border:"1px solid #f0d8dc",marginBottom:10}}/>
+                  <img src="https://www.bybit.com/common-static/cht-static/help-center-svc/article/fcf7cb6e6201a447c14ed550aba22ddb.png" alt="Copy Now" style={{width:"100%",borderRadius:10,border:"1px solid #f0d8dc",marginBottom:12}}/>
+                  <div style={{display:"flex",alignItems:"flex-start",gap:8,background:"rgba(192,122,138,0.08)",borderRadius:10,padding:"12px 14px"}}>
+                    <span style={{fontSize:16,flexShrink:0}}>⚠️</span>
+                    <div style={{fontSize:12,color:"#c07a8a",lineHeight:1.6}}>
+                      <strong>Important:</strong> Do not add extra leverage beyond our own position sizing. Copy us 1-to-1 exactly as-is — adding leverage can lead to <strong>liquidation</strong>.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div style={{marginTop:28,textAlign:"center"}}>
+            <a href={BYBIT_LINK} target="_blank" rel="noreferrer" className="btn-primary" style={{display:"inline-flex"}}>
+              Get started on Bybit →
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 5 — FAQ */}
       <section style={{padding:"40px 48px 32px",background:"#fdf8f8",borderTop:"1px solid #f0d8dc"}}>
         <div style={{maxWidth:800,margin:"0 auto"}}>
           <div className="fade-up" style={{marginBottom:18}}>
-            <div className="pill"><span className="pill-num">4</span>FAQ</div>
+            <div className="pill"><span className="pill-num">5</span>FAQ</div>
           </div>
           <h2 style={{fontFamily:"'Bricolage Grotesque',sans-serif",fontSize:"clamp(24px,3vw,36px)",fontWeight:700,letterSpacing:"-0.02em",color:"#1a0f0f",marginBottom:32,lineHeight:1.15}}>
             Frequently asked questions
@@ -625,7 +709,7 @@ export default function App() {
             {[
               {
                 q:"Why share a strategy if it's a winning one?",
-                a:"Fair question. Elevano Capital's strategy operates across a diversified portfolio of large and mid-cap crypto assets, giving it an estimated capacity of ~$17M before execution quality can potentially degrade. We are still very far from that limit. Sharing the strategy lets us scale AUM — we benefit from returns on our own capital, making it a win-win until that capacity constraint is reached."
+                a:"Fair question. Elevano Capital's strategy operates across a diversified portfolio of large and mid-cap crypto assets, giving it an estimated capacity of ~$47M before execution quality can potentially degrade. We are still very far from that limit. Sharing the strategy lets us scale AUM — we benefit from returns on our own capital, making it a win-win until that capacity constraint is reached."
               },
               {
                 q:"What is Elevano Capital's edge?",
@@ -656,7 +740,7 @@ export default function App() {
       <div className="section3-wrap">
         <div className="section3">
           <div style={{textAlign:"center",marginBottom:14}} className="fade-up">
-            <div className="pill" style={{display:"inline-flex"}}><span className="pill-num">5</span>Contact</div>
+            <div className="pill" style={{display:"inline-flex"}}><span className="pill-num">6</span>Contact</div>
           </div>
           <h2 className="s3-title fade-up d1">Maximum value through<br/>direct communication</h2>
           <p className="s3-sub fade-up d2">Connect with us through our preferred channels. Elevano Capital believes in transparent, direct communication to deliver the best value to its users.</p>
