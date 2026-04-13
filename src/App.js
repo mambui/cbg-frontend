@@ -3,8 +3,8 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 
 const BACKEND_URL = 'https://cbg-backend-production-fdd7.up.railway.app';
 const BYBIT_LINK = 'https://www.bybit.com/copyTrade/trade-center/detail?leaderMark=gOerGIfY7IJ5keZeX0RfBg%3D%3D&copyFrom=Search&profileDay=90';
-const TWITTER_LINK = 'https://x.com/Bank_of_Geneva';
-const TELEGRAM_LINK = 'https://t.me/CentralBankGeneva';
+const TWITTER_LINK = 'https://x.com/elevano_capital';
+const TELEGRAM_LINK = 'https://t.me/ElevanoCapital';
 const CONTACT_EMAIL = 'cbofgeneva@gmail.com';
 
 /* ── Real NAV curve — $1,000 starting capital ── */
@@ -209,6 +209,22 @@ export default function App() {
   const [liveData, setLiveData] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [chartFilter, setChartFilter] = useState("YTD");
+
+  const FILTERS = ["1D","5D","1M","6M","YTD","1Y","Max"];
+
+  const getFilteredCurve = () => {
+    const now = CURVE.length;
+    if (chartFilter === "1D") return CURVE.slice(-1);
+    if (chartFilter === "5D") return CURVE.slice(-5);
+    if (chartFilter === "1M") return CURVE.slice(-22);
+    if (chartFilter === "6M") return CURVE.slice(-130);
+    if (chartFilter === "YTD") return CURVE;
+    if (chartFilter === "1Y") return CURVE;
+    return CURVE;
+  };
+
+  const filteredCurve = getFilteredCurve();
 
   useEffect(() => {
     const fetch_ = async () => {
@@ -222,8 +238,8 @@ export default function App() {
   }, []);
 
   const live = extractLive(liveData);
-  const minVal = Math.min(...CURVE.map(d => Math.min(d.nav, d.btc)));
-  const maxVal = Math.max(...CURVE.map(d => Math.max(d.nav, d.btc)));
+  const minVal = Math.min(...filteredCurve.map(d => Math.min(d.nav, d.btc)));
+  const maxVal = Math.max(...filteredCurve.map(d => Math.max(d.nav, d.btc)));
 
   const [sending, setSending] = useState(false);
 
@@ -251,15 +267,11 @@ export default function App() {
       {/* NAV */}
       <nav className="nav">
         <div className="nav-logo">
-          <span className="nav-logo-text">Central <span>Bank</span> of Geneva</span>
+          <span className="nav-logo-text">Elevano <span>Capital</span></span>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:6,fontSize:11,color:"#b09098",fontWeight:500}}>
           <span>Swiss made</span>
-          <svg viewBox="0 0 20 20" width="18" height="18" style={{borderRadius:2,flexShrink:0}}>
-            <rect width="20" height="20" fill="#FF0000"/>
-            <rect x="8.5" y="3" width="3" height="14" fill="white"/>
-            <rect x="3" y="8.5" width="14" height="3" fill="white"/>
-          </svg>
+          <span style={{fontSize:16}}>🇨🇭</span>
         </div>
         <div className="nav-right">
           {lastUpdated && <div className="live-badge"><span className="live-dot"/>Live</div>}
@@ -284,11 +296,11 @@ export default function App() {
             </div>
           </div>
           <h1 className="hero-title fade-up d2">
-            Central Bank<br/>of Geneva<br/>
-            <span style={{fontSize:"0.55em",fontWeight:700,letterSpacing:"-0.01em"}}>DeFi Hedge Fund</span>
+            Elevano<br/>Capital<br/>
+            <span style={{fontSize:"0.55em",fontWeight:700,letterSpacing:"-0.01em"}}>Crypto Hedge Fund</span>
           </h1>
           <p className="hero-sub fade-up d3" style={{fontStyle:"normal",marginBottom:26}}>
-            First of its kind — a fully automated Central Bank deploying mid-frequency long/short systematic strategies, <strong style={{color:"#c07a8a"}}>without leverage</strong>, to serve its citizens with institutional-grade returns.
+            First of its kind — a fully automated Crypto Hedge Fund deploying <strong style={{color:"#c07a8a"}}>mid-frequency long/short systematic strategies</strong>, without leverage. Combining <strong style={{color:"#c07a8a"}}>trend following, mean reversion, and whale tracking</strong>, we continuously rotate across the most successful on-chain wallets and replicate their trades proportionally in your own Bybit account — giving you institutional-grade returns with full blockchain transparency.
           </p>
           <div className="btn-row fade-up d3">
             <a href={BYBIT_LINK} target="_blank" rel="noreferrer" className="btn-primary">Copy Trade →</a>
@@ -314,7 +326,7 @@ export default function App() {
             <div className="perf-stats">
               <div>
                 <div className="pstat-val pos">+45.7%</div>
-                <div className="pstat-label">Total return since inception</div>
+                <div className="pstat-label">Total return since inception (net of fees)</div>
                 <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Jan 2026</div>
               </div>
               <div>
@@ -338,13 +350,26 @@ export default function App() {
               </div>
             </div>
 
-            <div className="chart-legend">
-              <div className="legend-item"><div className="legend-dot" style={{background:"#c07a8a"}}/>Return Since Inception</div>
-              <div className="legend-item"><div className="legend-dot" style={{background:"#f7931a",opacity:0.7}}/>Bitcoin (BTC)</div>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+              <div className="chart-legend" style={{margin:0}}>
+                <div className="legend-item"><div className="legend-dot" style={{background:"#c07a8a"}}/>Return Since Inception</div>
+                <div className="legend-item"><div className="legend-dot" style={{background:"#f7931a",opacity:0.7}}/>Bitcoin (BTC)</div>
+              </div>
+              <div style={{display:"flex",gap:3}}>
+                {FILTERS.map(f => (
+                  <button key={f} onClick={()=>setChartFilter(f)} style={{
+                    padding:"2px 7px",borderRadius:5,border:"1px solid",fontSize:9,fontWeight:600,cursor:"pointer",
+                    fontFamily:"Inter,sans-serif",transition:"all 0.15s",
+                    background: chartFilter===f ? "#c07a8a" : "transparent",
+                    color: chartFilter===f ? "#fff" : "#b09098",
+                    borderColor: chartFilter===f ? "#c07a8a" : "#f0d8dc",
+                  }}>{f}</button>
+                ))}
+              </div>
             </div>
 
             <ResponsiveContainer width="100%" height={160}>
-              <AreaChart data={CURVE} margin={{top:4,right:4,left:0,bottom:0}}>
+              <AreaChart data={filteredCurve} margin={{top:4,right:4,left:0,bottom:0}}>
                 <defs>
                   <linearGradient id="gNav" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#c07a8a" stopOpacity={0.22}/>
@@ -479,7 +504,7 @@ export default function App() {
 
       {/* FOOTER */}
       <div className="footer">
-        © {new Date().getFullYear()} Elevano Capital · <a href={TWITTER_LINK} target="_blank" rel="noreferrer">@Bank_of_Geneva</a> · <a href={TELEGRAM_LINK} target="_blank" rel="noreferrer">Telegram</a>
+        © {new Date().getFullYear()} Elevano Capital · <a href={TWITTER_LINK} target="_blank" rel="noreferrer">@elevano_capital</a> · <a href={TELEGRAM_LINK} target="_blank" rel="noreferrer">Telegram</a>
         <br/>
         For informational purposes only. Past performance is not indicative of future results. Trading crypto assets involves significant risk of loss.
       </div>
