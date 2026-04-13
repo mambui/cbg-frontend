@@ -285,13 +285,31 @@ export default function App() {
     : 0;
   const sharpe = stdRet > 0 ? ((meanRet / stdRet) * Math.sqrt(365)).toFixed(2) : "—";
 
-  // APY = (return% / number of days) * 365
-  const apyVal = n > 1 ? (parseFloat(navReturn) / n * 365) : 0;
-  const apy = n > 1 ? apyVal.toFixed(0) + "%" : "—";
+  // Alpha & Beta vs BTC
+  const { alpha, beta: betaVal } = (() => {
+    if (rawSlice.length < 5) return { alpha: "—", beta: "—" };
+    const navR = rawSlice.slice(1).map((d,i) => (d.nav - rawSlice[i].nav) / rawSlice[i].nav);
+    const btcR = rawSlice.slice(1).map((d,i) => d.btc && rawSlice[i].btc ? (d.btc - rawSlice[i].btc) / rawSlice[i].btc : null).filter(v => v !== null);
+    const n = Math.min(navR.length, btcR.length);
+    if (n < 2) return { alpha: "—", beta: "—" };
+    const meanNav = navR.slice(0,n).reduce((a,b)=>a+b,0)/n;
+    const meanBtc = btcR.slice(0,n).reduce((a,b)=>a+b,0)/n;
+    const cov = navR.slice(0,n).reduce((a,r,i)=>a+(r-meanNav)*(btcR[i]-meanBtc),0)/n;
+    const varBtc = btcR.slice(0,n).reduce((a,r)=>a+(r-meanBtc)**2,0)/n;
+    if (varBtc === 0) return { alpha: "—", beta: "—" };
+    const b = cov/varBtc;
+    const dailyAlpha = meanNav - b * meanBtc;
+    const annAlpha = (dailyAlpha * 365 * 100).toFixed(1);
+    return { alpha: parseFloat(annAlpha) >= 0 ? `+${annAlpha}%` : `${annAlpha}%`, beta: b.toFixed(2) };
+  })();
 
   // Win rate
   const winDays = dailyRets.filter(r => r > 0).length;
   const winRate = dailyRets.length ? ((winDays / dailyRets.length) * 100).toFixed(1) + "%" : "—";
+
+  // APY = (return% / number of days) * 365
+  const apyVal = n > 1 ? (parseFloat(navReturn) / n * 365) : 0;
+  const apy = n > 1 ? apyVal.toFixed(0) + "%" : "—";
 
   const periodLabel = chartFilter === "YTD" ? "Since Jan 2026" : chartFilter === "Max" ? "All time" : `Last ${chartFilter}`;
 
@@ -425,7 +443,7 @@ export default function App() {
                 <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Same period</div>
               </div>
               <div style={{display:"flex",flexDirection:"column",gap:0}}>
-                <div style={{display:"flex",gap:20,alignItems:"flex-start"}}>
+                <div style={{display:"flex",gap:16,alignItems:"flex-start",flexWrap:"wrap"}}>
                   <div>
                     <div className="pstat-val">{sharpe}</div>
                     <div className="pstat-label gray">Sharpe Ratio</div>
@@ -434,6 +452,16 @@ export default function App() {
                   <div>
                     <div className="pstat-val">{apy}</div>
                     <div className="pstat-label gray">Annual APY</div>
+                    <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
+                  </div>
+                  <div>
+                    <div className="pstat-val">{betaVal}</div>
+                    <div className="pstat-label gray">Beta vs BTC</div>
+                    <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Market neutral</div>
+                  </div>
+                  <div>
+                    <div className="pstat-val pos">{alpha}</div>
+                    <div className="pstat-label gray">Alpha</div>
                     <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
                   </div>
                 </div>
@@ -458,7 +486,7 @@ export default function App() {
               </div>
             </div>
 
-            <ResponsiveContainer width="100%" height={160}>
+            <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={filteredCurve} margin={{top:4,right:4,left:0,bottom:0}}>
                 <defs>
                   <linearGradient id="gNav" x1="0" y1="0" x2="0" y2="1">
