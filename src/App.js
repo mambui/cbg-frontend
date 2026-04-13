@@ -85,7 +85,7 @@ const G = () => (
     .nav-btn:hover{opacity:0.85;}
     .pill{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1.5px solid #e8c8cc;border-radius:999px;padding:5px 14px;font-size:12px;font-weight:500;color:#c07a8a;}
     .pill-num{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,#c07a8a,#a05a8a);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
-    .hero{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;padding:48px 48px 36px;max-width:1200px;margin:0 auto;}
+    .hero{display:grid;grid-template-columns:1fr 1.3fr;gap:40px;align-items:center;padding:48px 48px 36px;max-width:1320px;margin:0 auto;}
     @media(max-width:900px){.hero{grid-template-columns:1fr;padding:28px 18px 20px;}}
     .hero-badge{margin-bottom:18px;}
     .hero-handle{font-size:12px;color:#c07a8a;font-weight:500;margin-bottom:12px;letter-spacing:0.04em;}
@@ -103,7 +103,7 @@ const G = () => (
     .perf-sub{font-size:11px;color:#b09098;margin-top:2px;}
     .nav-dot{display:flex;align-items:center;gap:5px;font-size:11px;color:#c07a8a;font-weight:500;}
     .nav-dot::before{content:'';display:block;width:6px;height:6px;border-radius:50%;background:#c07a8a;}
-    .perf-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:14px 0;}
+    .perf-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:14px 0;}
     .pstat-val{font-size:20px;font-weight:700;color:#1a0f0f;letter-spacing:-0.02em;}
     .pstat-val.pos{color:#1a9e6e;}.pstat-val.neg{color:#e05050;}
     .pstat-label{font-size:10px;color:#1a9e6e;font-weight:500;margin-top:2px;}
@@ -311,6 +311,26 @@ export default function App() {
   const apyVal = n > 1 ? (parseFloat(navReturn) / n * 365) : 0;
   const apy = n > 1 ? apyVal.toFixed(0) + "%" : "—";
 
+  // Dynamic monthly returns from navHistory
+  const monthlyPills = (() => {
+    if (!navHistory.length) return [];
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const byMonth = {};
+    for (const row of navHistory) {
+      const d = new Date(row.date);
+      const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth()).padStart(2,'0')}`;
+      if (!byMonth[key]) byMonth[key] = { label: months[d.getUTCMonth()], rows: [] };
+      byMonth[key].rows.push(parseFloat(row.nav));
+    }
+    return Object.entries(byMonth).sort().map(([key, { label, rows }]) => {
+      const start = rows[0];
+      const end = rows[rows.length-1];
+      const ret = ((end - start) / start * 100).toFixed(1);
+      const pos = parseFloat(ret) >= 0;
+      return { label: `${label} ${pos?'+':''}${ret}%`, pos };
+    });
+  })();
+
   const periodLabel = chartFilter === "YTD" ? "Since Jan 2026" : chartFilter === "Max" ? "All time" : `Last ${chartFilter}`;
 
   useEffect(() => {
@@ -431,7 +451,7 @@ export default function App() {
               <div className="nav-dot">NAV</div>
             </div>
 
-            <div className="perf-stats">
+            <div className="perf-stats" style={{gridTemplateColumns:"repeat(4,1fr)"}}>
               <div>
                 <div className={`pstat-val ${parseFloat(navReturn)>=0?"pos":"neg"}`}>{navReturnLabel}</div>
                 <div className="pstat-label">Elevano Capital</div>
@@ -442,29 +462,25 @@ export default function App() {
                 <div className={`pstat-label ${parseFloat(btcReturn)>=0?"":"neg"}`}>Bitcoin</div>
                 <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Same period</div>
               </div>
-              <div style={{display:"flex",flexDirection:"column",gap:0}}>
-                <div style={{display:"flex",gap:16,alignItems:"flex-start",flexWrap:"wrap"}}>
-                  <div>
-                    <div className="pstat-val">{sharpe}</div>
-                    <div className="pstat-label gray">Sharpe Ratio</div>
-                    <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
-                  </div>
-                  <div>
-                    <div className="pstat-val">{apy}</div>
-                    <div className="pstat-label gray">Annual APY</div>
-                    <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
-                  </div>
-                  <div>
-                    <div className="pstat-val">{betaVal}</div>
-                    <div className="pstat-label gray">Beta vs BTC</div>
-                    <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Market neutral</div>
-                  </div>
-                  <div>
-                    <div className="pstat-val pos">{alpha}</div>
-                    <div className="pstat-label gray">Alpha</div>
-                    <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
-                  </div>
-                </div>
+              <div>
+                <div className="pstat-val">{sharpe}</div>
+                <div className="pstat-label gray">Sharpe Ratio</div>
+                <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
+              </div>
+              <div>
+                <div className="pstat-val">{apy}</div>
+                <div className="pstat-label gray">Annual APY</div>
+                <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
+              </div>
+              <div>
+                <div className="pstat-val">{betaVal}</div>
+                <div className="pstat-label gray">Beta vs BTC</div>
+                <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Market neutral</div>
+              </div>
+              <div>
+                <div className="pstat-val pos">{alpha}</div>
+                <div className="pstat-label gray">Alpha</div>
+                <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
               </div>
             </div>
 
@@ -486,7 +502,7 @@ export default function App() {
               </div>
             </div>
 
-            <ResponsiveContainer width="100%" height={200}>
+            <ResponsiveContainer width="100%" height={160}>
               <AreaChart data={filteredCurve} margin={{top:4,right:4,left:0,bottom:0}}>
                 <defs>
                   <linearGradient id="gNav" x1="0" y1="0" x2="0" y2="1">
@@ -515,12 +531,14 @@ export default function App() {
             <div className="chart-caption">$1,000 invested in Elevano Capital — since Jan 2026</div>
 
             <div className="perf-footer">
-              <strong>Elevano Capital: {navReturnLabel}</strong> vs <span className="neg">BTC: {btcReturnLabel}</span> · {periodLabel}<br/>
-              Max drawdown <strong>{maxDDLabel}</strong> · Sharpe <strong>{sharpe}</strong> · Win rate <strong>{winRate}</strong>
+              <div style={{color:"#b09098",marginBottom:4}}>{periodLabel}</div>
+              <strong>Elevano Capital: {navReturnLabel}</strong> · Max drawdown <strong>{maxDDLabel}</strong> · Sharpe <strong>{sharpe}</strong> · Win rate <strong>{winRate}</strong>
+              <br/>
+              <span className="neg">BTC: {btcReturnLabel}</span> · Beta <strong>{betaVal}</strong> · Alpha <strong style={{color:"#1a9e6e"}}>{alpha}</strong>
               <div className="monthly-pills">
-                <span className="m-pill">Jan +18.1%</span>
-                <span className="m-pill">Feb +13.4%</span>
-                <span className="m-pill">Mar +8.9%</span>
+                {monthlyPills.map((p,i) => (
+                  <span key={i} className="m-pill" style={{color: p.pos ? "#1a9e6e" : "#e05050"}}>{p.label}</span>
+                ))}
               </div>
             </div>
           </div>
