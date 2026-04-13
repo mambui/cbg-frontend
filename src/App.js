@@ -226,13 +226,14 @@ export default function App() {
     }).filter(d => d.btc !== null);
   })();
 
-  // Dynamic track record in months
+  // Dynamic track record — months from first date to today
   const trackRecord = (() => {
     if (!navHistory.length) return "3 months";
-    const first = new Date(navHistory[0].date);
-    const last = new Date(navHistory[navHistory.length-1].date);
-    const months = Math.round((last - first) / (1000 * 60 * 60 * 24 * 30));
-    return months <= 1 ? "1 month" : `${months} months`;
+    const first = new Date(navHistory.find(r => r.date >= "2026-01-01")?.date || "2026-01-01");
+    const now = new Date();
+    const months = (now.getFullYear() - first.getUTCFullYear()) * 12 + (now.getMonth() - first.getUTCMonth());
+    const total = Math.max(months, 1);
+    return total <= 1 ? "1 month" : `${total} months`;
   })();
 
   const FILTERS = ["5D","1M","6M","YTD","1Y","Max"];
@@ -365,11 +366,12 @@ export default function App() {
   })();
 
   // BTC monthly pills from navHistory btc_price
+  // BTC monthly returns — fully dynamic, uses Dec 31 2025 as Jan base
   const btcMonthlyPills = (() => {
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const withBtc = navHistory.filter(r => r.btc_price);
+    const withBtc = navHistory.filter(r => r.btc_price).sort((a,b) => a.date.localeCompare(b.date));
     if (!withBtc.length) return [];
-    
+
     const byMonth = {};
     for (const row of withBtc) {
       const d = new Date(row.date);
@@ -377,24 +379,27 @@ export default function App() {
       if (!byMonth[key]) byMonth[key] = [];
       byMonth[key].push({ date: row.date, price: parseFloat(row.btc_price) });
     }
-    
+
     const sortedMonths = Object.keys(byMonth).sort();
-    return sortedMonths.map((key, i) => {
+    const results = [];
+
+    for (let i = 0; i < sortedMonths.length; i++) {
+      const key = sortedMonths[i];
+      const year = parseInt(key.split('-')[0]);
+      const monthIdx = parseInt(key.split('-')[1]);
+      if (year < 2026) continue; // skip Dec 2025 (used as base only)
+
       const rows = byMonth[key].sort((a,b) => a.date.localeCompare(b.date));
-      const label = months[parseInt(key.split('-')[1])];
-      let startPrice;
-      if (i === 0) {
-        startPrice = rows[0].price;
-      } else {
-        const prevKey = sortedMonths[i-1];
-        const prevRows = byMonth[prevKey].sort((a,b) => a.date.localeCompare(b.date));
-        startPrice = prevRows[prevRows.length-1].price;
-      }
+      const label = months[monthIdx];
+      const prevKey = sortedMonths[i-1];
+      if (!prevKey) continue;
+      const prevRows = byMonth[prevKey].sort((a,b) => a.date.localeCompare(b.date));
+      const startPrice = prevRows[prevRows.length-1].price;
       const endPrice = rows[rows.length-1].price;
-      const ret = ((endPrice - startPrice) / startPrice * 100).toFixed(1);
-      const pos = parseFloat(ret) >= 0;
-      return { label: `${label} ${pos?'+':''}${ret}%`, pos };
-    });
+      const ret = parseFloat(((endPrice - startPrice) / startPrice * 100).toFixed(1));
+      results.push({ label: `${label} ${ret >= 0?'+':''}${ret}%`, pos: ret >= 0 });
+    }
+    return results;
   })();
 
   const periodLabel = chartFilter === "YTD" ? "Since Jan 2026" : chartFilter === "Max" ? "All time" : `Last ${chartFilter}`;
