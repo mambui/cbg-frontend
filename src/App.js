@@ -8,53 +8,31 @@ const TWITTER_LINK = 'https://x.com/elevano_capital';
 const TELEGRAM_LINK = 'https://t.me/elevano_capital';
 const CONTACT_EMAIL = 'elevanocapital@gmail.com';
 
-/* ── Real NAV curve — $1,000 starting capital ── */
-const CURVE = [
-  {date:"Jan 1",nav:999.9,btc:1000.0},{date:"Jan 2",nav:1033.82,btc:943.06},
-  {date:"Jan 3",nav:1044.16,btc:954.12},{date:"Jan 4",nav:1051.29,btc:957.45},
-  {date:"Jan 5",nav:1153.42,btc:961.21},{date:"Jan 6",nav:1183.84,btc:992.64},
-  {date:"Jan 7",nav:1169.08,btc:970.38},{date:"Jan 8",nav:1173.87,btc:966.66},
-  {date:"Jan 9",nav:1145.63,btc:968.09},{date:"Jan 10",nav:1041.98,btc:973.4},
-  {date:"Jan 11",nav:1047.08,btc:978.72},{date:"Jan 12",nav:1051.11,btc:984.04},
-  {date:"Jan 13",nav:1059.26,btc:988.19},{date:"Jan 14",nav:1091.35,btc:1001.9},
-  {date:"Jan 15",nav:1114.39,btc:1003.16},{date:"Jan 16",nav:1140.43,btc:1004.36},
-  {date:"Jan 17",nav:1140.48,btc:1003.19},{date:"Jan 18",nav:1138.5,btc:1001.56},
-  {date:"Jan 19",nav:1133.42,btc:978.72},{date:"Jan 20",nav:1104.63,btc:964.37},
-  {date:"Jan 21",nav:1097.21,btc:957.45},{date:"Jan 22",nav:1097.36,btc:955.32},
-  {date:"Jan 23",nav:1098.72,btc:952.27},{date:"Jan 24",nav:1100.54,btc:946.81},
-  {date:"Jan 25",nav:1090.69,btc:941.49},{date:"Jan 26",nav:1089.82,btc:935.62},
-  {date:"Jan 27",nav:1133.08,btc:938.94},{date:"Jan 28",nav:1171.47,btc:949.33},
-  {date:"Jan 29",nav:1157.68,btc:932.71},{date:"Jan 30",nav:1161.32,btc:882.98},
-  {date:"Jan 31",nav:1180.61,btc:848.82},{date:"Feb 1",nav:1170.71,btc:827.51},
-  {date:"Feb 2",nav:1185.43,btc:821.98},{date:"Feb 3",nav:1184.89,btc:815.65},
-  {date:"Feb 4",nav:1181.85,btc:779.99},{date:"Feb 5",nav:1109.91,btc:729.24},
-  {date:"Feb 6",nav:1206.73,btc:662.53},{date:"Feb 7",nav:1188.11,btc:741.0},
-  {date:"Feb 8",nav:1192.12,btc:750.4},{date:"Feb 9",nav:1168.37,btc:744.68},
-  {date:"Feb 10",nav:1212.35,btc:739.4},{date:"Feb 11",nav:1299.67,btc:709.59},
-  {date:"Feb 12",nav:1341.51,btc:718.56},{date:"Feb 13",nav:1349.95,btc:717.03},
-  {date:"Feb 14",nav:1339.27,btc:726.31},{date:"Feb 15",nav:1332.33,btc:725.53},
-  {date:"Feb 16",nav:1301.93,btc:724.47},{date:"Feb 17",nav:1309.53,btc:724.24},
-  {date:"Feb 18",nav:1312.04,btc:719.1},{date:"Feb 19",nav:1316.29,btc:720.21},
-  {date:"Feb 20",nav:1328.55,btc:721.24},{date:"Feb 21",nav:1327.67,btc:718.09},
-  {date:"Feb 22",nav:1308.43,btc:711.7},{date:"Feb 23",nav:1308.64,btc:704.86},
-  {date:"Feb 24",nav:1302.41,btc:673.57},{date:"Feb 25",nav:1322.51,btc:691.49},
-  {date:"Feb 26",nav:1325.99,btc:716.03},{date:"Feb 27",nav:1344.68,btc:704.13},
-  {date:"Feb 28",nav:1338.49,btc:678.61},{date:"Mar 1",nav:1335.43,btc:706.14},
-  {date:"Mar 2",nav:1333.47,btc:715.9},{date:"Mar 3",nav:1344.72,btc:723.35},
-  {date:"Mar 4",nav:1362.05,btc:745.64},{date:"Mar 5",nav:1345.79,btc:758.56},
-  {date:"Mar 6",nav:1360.31,btc:754.85},{date:"Mar 7",nav:1360.18,btc:729.96},
-  {date:"Mar 8",nav:1370.31,btc:728.72},{date:"Mar 9",nav:1379.41,btc:728.0},
-  {date:"Mar 10",nav:1388.57,btc:738.91},{date:"Mar 11",nav:1390.62,btc:743.0},
-  {date:"Mar 12",nav:1438.32,btc:743.11},{date:"Mar 13",nav:1439.37,btc:753.97},
-  {date:"Mar 14",nav:1434.69,btc:750.88},{date:"Mar 15",nav:1446.75,btc:755.04},
-  {date:"Mar 16",nav:1484.23,btc:772.99},{date:"Mar 17",nav:1490.06,btc:774.62},
-  {date:"Mar 18",nav:1442.61,btc:766.98},{date:"Mar 19",nav:1417.78,btc:752.24},
-  {date:"Mar 20",nav:1404.52,btc:740.84},{date:"Mar 22",nav:1396.65,btc:739.36},
-  {date:"Mar 23",nav:1427.4,btc:753.3},{date:"Mar 24",nav:1490.59,btc:746.61},
-  {date:"Mar 25",nav:1502.33,btc:758.78},{date:"Mar 26",nav:1512.7,btc:745.07},
-  {date:"Mar 27",nav:1524.03,btc:725.24},{date:"Mar 29",nav:1521.48,btc:717.43},
-  {date:"Mar 30",nav:1501.01,btc:717.5},{date:"Mar 31",nav:1456.91,btc:714.89},
-];
+/* ── BTC benchmark data (static) ── */
+const BTC_DATA = {
+  "2026-01-01":1000.0,"2026-01-02":943.06,"2026-01-03":954.12,"2026-01-04":957.45,
+  "2026-01-05":961.21,"2026-01-06":992.64,"2026-01-07":970.38,"2026-01-08":966.66,
+  "2026-01-09":968.09,"2026-01-10":973.4,"2026-01-11":978.72,"2026-01-12":984.04,
+  "2026-01-13":988.19,"2026-01-14":1001.9,"2026-01-15":1003.16,"2026-01-16":1004.36,
+  "2026-01-17":1003.19,"2026-01-18":1001.56,"2026-01-19":978.72,"2026-01-20":964.37,
+  "2026-01-21":957.45,"2026-01-22":955.32,"2026-01-23":952.27,"2026-01-24":946.81,
+  "2026-01-25":941.49,"2026-01-26":935.62,"2026-01-27":938.94,"2026-01-28":949.33,
+  "2026-01-29":932.71,"2026-01-30":882.98,"2026-01-31":848.82,"2026-02-01":827.51,
+  "2026-02-02":821.98,"2026-02-03":815.65,"2026-02-04":779.99,"2026-02-05":729.24,
+  "2026-02-06":662.53,"2026-02-07":741.0,"2026-02-08":750.4,"2026-02-09":744.68,
+  "2026-02-10":739.4,"2026-02-11":709.59,"2026-02-12":718.56,"2026-02-13":717.03,
+  "2026-02-14":726.31,"2026-02-15":725.53,"2026-02-16":724.47,"2026-02-17":724.24,
+  "2026-02-18":719.1,"2026-02-19":720.21,"2026-02-20":721.24,"2026-02-21":718.09,
+  "2026-02-22":711.7,"2026-02-23":704.86,"2026-02-24":673.57,"2026-02-25":691.49,
+  "2026-02-26":716.03,"2026-02-27":704.13,"2026-02-28":678.61,"2026-03-01":706.14,
+  "2026-03-02":715.9,"2026-03-03":723.35,"2026-03-04":745.64,"2026-03-05":758.56,
+  "2026-03-06":754.85,"2026-03-07":729.96,"2026-03-08":728.72,"2026-03-09":728.0,
+  "2026-03-10":738.91,"2026-03-11":743.0,"2026-03-12":743.11,"2026-03-13":753.97,
+  "2026-03-14":750.88,"2026-03-15":755.04,"2026-03-16":772.99,"2026-03-17":774.62,
+  "2026-03-18":766.98,"2026-03-19":752.24,"2026-03-20":740.84,"2026-03-22":739.36,
+  "2026-03-23":753.3,"2026-03-24":746.61,"2026-03-25":758.78,"2026-03-26":745.07,
+  "2026-03-27":725.24,"2026-03-29":717.43,"2026-03-30":717.5,"2026-03-31":714.89,
+};
 
 const FEATURES = [
   { icon:"brain", name:"Quantitative Intelligence", desc:"Mid-frequency systematic strategies built on rigorous quantitative models, stress-tested across multiple market regimes." },
@@ -223,7 +201,20 @@ export default function App() {
   const [liveData, setLiveData] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
   const [privacyOpen, setPrivacyOpen] = useState(false);
+  const [navHistory, setNavHistory] = useState([]);
   const [chartFilter, setChartFilter] = useState("YTD");
+
+  // Build CURVE from live Supabase data
+  const CURVE = navHistory.map(row => {
+    const d = new Date(row.date);
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const label = `${months[d.getUTCMonth()]} ${d.getUTCDate()}`;
+    return {
+      date: label,
+      nav: parseFloat(row.nav),
+      btc: BTC_DATA[row.date] || null,
+    };
+  }).filter(d => d.btc !== null);
 
   const FILTERS = ["1D","5D","1M","6M","YTD","1Y","Max"];
 
@@ -294,7 +285,17 @@ export default function App() {
         setLiveData(data); setLastUpdated(data.lastUpdated);
       } catch {}
     };
-    fetch_(); const iv = setInterval(fetch_, 60000); return () => clearInterval(iv);
+    const fetchNav = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/nav-history`);
+        const data = await res.json();
+        setNavHistory(data);
+      } catch {}
+    };
+    fetch_(); fetchNav();
+    const iv = setInterval(fetch_, 60000);
+    const ivNav = setInterval(fetchNav, 3600000); // refresh every hour
+    return () => { clearInterval(iv); clearInterval(ivNav); };
   }, []);
 
   const live = extractLive(liveData);
