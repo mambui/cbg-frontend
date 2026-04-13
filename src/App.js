@@ -4,7 +4,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 const BACKEND_URL = 'https://cbg-backend-production-fdd7.up.railway.app';
 const BYBIT_LINK = 'https://www.bybit.com/copyTrade/trade-center/detail?leaderMark=gOerGIfY7IJ5keZeX0RfBg%3D%3D&copyFrom=Search&profileDay=90';
 const TWITTER_LINK = 'https://x.com/elevano_capital';
-const TELEGRAM_LINK = 'https://t.me/ElevanoCapital';
+const TELEGRAM_LINK = 'https://t.me/elevano_capital';
 const CONTACT_EMAIL = 'cbofgeneva@gmail.com';
 
 /* ── Real NAV curve — $1,000 starting capital ── */
@@ -213,18 +213,63 @@ export default function App() {
 
   const FILTERS = ["1D","5D","1M","6M","YTD","1Y","Max"];
 
-  const getFilteredCurve = () => {
-    const now = CURVE.length;
+  const getRawSlice = () => {
     if (chartFilter === "1D") return CURVE.slice(-1);
     if (chartFilter === "5D") return CURVE.slice(-5);
     if (chartFilter === "1M") return CURVE.slice(-22);
     if (chartFilter === "6M") return CURVE.slice(-130);
-    if (chartFilter === "YTD") return CURVE;
-    if (chartFilter === "1Y") return CURVE;
     return CURVE;
   };
 
-  const filteredCurve = getFilteredCurve();
+  // Normalize both lines to start at 1000
+  const rawSlice = getRawSlice();
+  const navBase = rawSlice[0]?.nav || 1000;
+  const btcBase = rawSlice[0]?.btc || 1000;
+  const filteredCurve = rawSlice.map(d => ({
+    ...d,
+    nav: parseFloat((d.nav / navBase * 1000).toFixed(2)),
+    btc: parseFloat((d.btc / btcBase * 1000).toFixed(2)),
+  }));
+
+  // ── Dynamic metrics computed from rawSlice ──
+  const n = rawSlice.length;
+  const navStart = rawSlice[0]?.nav || 1000;
+  const navEnd = rawSlice[n-1]?.nav || 1000;
+  const btcStart = rawSlice[0]?.btc || 1000;
+  const btcEnd = rawSlice[n-1]?.btc || 1000;
+
+  const navReturn = n > 1 ? ((navEnd - navStart) / navStart * 100).toFixed(1) : "0.0";
+  const btcReturn = n > 1 ? ((btcEnd - btcStart) / btcStart * 100).toFixed(1) : "0.0";
+  const navReturnLabel = parseFloat(navReturn) >= 0 ? `+${navReturn}%` : `${navReturn}%`;
+  const btcReturnLabel = parseFloat(btcReturn) >= 0 ? `+${btcReturn}%` : `${btcReturn}%`;
+
+  // Max drawdown
+  let peak = rawSlice[0]?.nav || 1000, maxDD = 0;
+  for (const d of rawSlice) {
+    if (d.nav > peak) peak = d.nav;
+    const dd = (peak - d.nav) / peak;
+    if (dd > maxDD) maxDD = dd;
+  }
+  const maxDDLabel = (maxDD * 100).toFixed(1) + "%";
+
+  // Daily returns for Sharpe + win rate
+  const dailyRets = rawSlice.slice(1).map((d, i) =>
+    (d.nav - rawSlice[i].nav) / rawSlice[i].nav
+  );
+  const meanRet = dailyRets.length ? dailyRets.reduce((a,b)=>a+b,0)/dailyRets.length : 0;
+  const stdRet = dailyRets.length > 1
+    ? Math.sqrt(dailyRets.reduce((a,b)=>a+(b-meanRet)**2,0)/dailyRets.length)
+    : 0;
+  const sharpe = stdRet > 0 ? ((meanRet / stdRet) * Math.sqrt(365)).toFixed(2) : "—";
+
+  // APY
+  const apy = n > 1 ? (((navEnd/navStart) ** (365/n) - 1) * 100).toFixed(0) + "%" : "—";
+
+  // Win rate
+  const winDays = dailyRets.filter(r => r > 0).length;
+  const winRate = dailyRets.length ? ((winDays / dailyRets.length) * 100).toFixed(1) + "%" : "—";
+
+  const periodLabel = chartFilter === "YTD" ? "Since Jan 2026" : chartFilter === "Max" ? "All time" : `Last ${chartFilter}`;
 
   useEffect(() => {
     const fetch_ = async () => {
@@ -271,7 +316,11 @@ export default function App() {
         </div>
         <div style={{display:"flex",alignItems:"center",gap:6,fontSize:11,color:"#b09098",fontWeight:500}}>
           <span>Swiss made</span>
-          <span style={{fontSize:16}}>🇨🇭</span>
+          <svg viewBox="0 0 20 20" width="18" height="18" style={{borderRadius:2,flexShrink:0}}>
+            <rect width="20" height="20" fill="#FF0000"/>
+            <rect x="8.5" y="3" width="3" height="14" fill="white"/>
+            <rect x="3" y="8.5" width="14" height="3" fill="white"/>
+          </svg>
         </div>
         <div className="nav-right">
           {lastUpdated && <div className="live-badge"><span className="live-dot"/>Live</div>}
@@ -300,7 +349,7 @@ export default function App() {
             <span style={{fontSize:"0.55em",fontWeight:700,letterSpacing:"-0.01em"}}>Crypto Hedge Fund</span>
           </h1>
           <p className="hero-sub fade-up d3" style={{fontStyle:"normal",marginBottom:26}}>
-            First of its kind — a fully automated Crypto Hedge Fund deploying <strong style={{color:"#c07a8a"}}>mid-frequency long/short systematic strategies</strong>, without leverage. Combining <strong style={{color:"#c07a8a"}}>trend following, mean reversion, and whale tracking</strong>, we continuously rotate across the most successful on-chain wallets and replicate their trades proportionally in your own Bybit account — giving you institutional-grade returns with full blockchain transparency.
+            First of its kind — a fully automated fund deploying mid-frequency long/short systematic strategies, <strong style={{color:"#c07a8a"}}>without leverage</strong>. Combining trend following, mean reversion, and whale tracking — giving you institutional-grade returns.
           </p>
           <div className="btn-row fade-up d3">
             <a href={BYBIT_LINK} target="_blank" rel="noreferrer" className="btn-primary">Copy Trade →</a>
@@ -325,24 +374,24 @@ export default function App() {
 
             <div className="perf-stats">
               <div>
-                <div className="pstat-val pos">+45.7%</div>
-                <div className="pstat-label">Total return since inception (net of fees)</div>
-                <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Jan 2026</div>
+                <div className={`pstat-val ${parseFloat(navReturn)>=0?"pos":"neg"}`}>{navReturnLabel}</div>
+                <div className="pstat-label">Elevano Capital</div>
+                <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>{periodLabel} · net of fees</div>
               </div>
               <div>
-                <div className="pstat-val neg">-28.5%</div>
-                <div className="pstat-label neg">Bitcoin</div>
+                <div className={`pstat-val ${parseFloat(btcReturn)>=0?"pos":"neg"}`}>{btcReturnLabel}</div>
+                <div className={`pstat-label ${parseFloat(btcReturn)>=0?"":"neg"}`}>Bitcoin</div>
                 <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Same period</div>
               </div>
               <div style={{display:"flex",flexDirection:"column",gap:0}}>
                 <div style={{display:"flex",gap:20,alignItems:"flex-start"}}>
                   <div>
-                    <div className="pstat-val">3.55</div>
+                    <div className="pstat-val">{sharpe}</div>
                     <div className="pstat-label gray">Sharpe Ratio</div>
                     <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
                   </div>
                   <div>
-                    <div className="pstat-val">183%</div>
+                    <div className="pstat-val">{apy}</div>
                     <div className="pstat-label gray">Annual APY</div>
                     <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
                   </div>
@@ -397,8 +446,8 @@ export default function App() {
             <div className="chart-caption">$1,000 invested in Elevano Capital — since Jan 2026</div>
 
             <div className="perf-footer">
-              <strong>Elevano Capital: $1,456.91</strong> vs <span className="neg">BTC: $714.89</span> per $1,000<br/>
-              Max drawdown <strong>12.0%</strong> · Return <strong>+45.7%</strong>
+              <strong>Elevano Capital: {navReturnLabel}</strong> vs <span className="neg">BTC: {btcReturnLabel}</span> · {periodLabel}<br/>
+              Max drawdown <strong>{maxDDLabel}</strong> · Sharpe <strong>{sharpe}</strong> · Win rate <strong>{winRate}</strong>
               <div className="monthly-pills">
                 <span className="m-pill">Jan +18.1%</span>
                 <span className="m-pill">Feb +13.4%</span>
@@ -413,13 +462,13 @@ export default function App() {
       <div className="stats-bar">
         <div className="stats-inner">
           {[
-            {v:"+45.7%",l:"Total Return Since Inception",pos:true},
-            {v:"-28.5%",l:"BTC same period",neg:true},
-            {v:"3 months",l:"Track Record"},
-            {v:"3.55",l:"Sharpe Ratio"},
-            {v:"12.0%",l:"Max Drawdown"},
-            {v:"59.1%",l:"Win Rate"},
-            {v:"3,595",l:"Closed Trades"},
+            {v:navReturnLabel, l:`Elevano · ${periodLabel}`, pos:parseFloat(navReturn)>=0, neg:parseFloat(navReturn)<0},
+            {v:btcReturnLabel, l:`BTC · ${periodLabel}`, pos:parseFloat(btcReturn)>=0, neg:parseFloat(btcReturn)<0},
+            {v:"3 months", l:"Track Record"},
+            {v:sharpe, l:"Sharpe Ratio"},
+            {v:maxDDLabel, l:"Max Drawdown"},
+            {v:winRate, l:"Win Rate"},
+            {v:"3,595", l:"Closed Trades"},
           ].map((s,i)=>(
             <div className="stat-item" key={i}>
               <div className={`stat-v ${s.pos?"pos":s.neg?"neg":""}`}>{s.v}</div>
