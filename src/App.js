@@ -5,7 +5,7 @@ const BACKEND_URL = 'https://cbg-backend-production-fdd7.up.railway.app';
 const BYBIT_LINK = 'https://www.bybit.com/copyTrade/trade-center/detail?leaderMark=gOerGIfY7IJ5keZeX0RfBg%3D%3D&copyFrom=Search&profileDay=90';
 const TWITTER_LINK = 'https://x.com/elevano_capital';
 const TELEGRAM_LINK = 'https://t.me/elevano_capital';
-const CONTACT_EMAIL = 'cbofgeneva@gmail.com';
+const CONTACT_EMAIL = 'elevanocapital@gmail.com';
 
 /* ── Real NAV curve — $1,000 starting capital ── */
 const CURVE = [
@@ -262,8 +262,11 @@ export default function App() {
     : 0;
   const sharpe = stdRet > 0 ? ((meanRet / stdRet) * Math.sqrt(365)).toFixed(2) : "—";
 
-  // APY
-  const apy = n > 1 ? (((navEnd/navStart) ** (365/n) - 1) * 100).toFixed(0) + "%" : "—";
+  // APY — annualized properly, capped for short periods
+  const apyVal = n > 1
+    ? Math.min(((navEnd/navStart) ** (365/Math.max(n,30)) - 1) * 100, 999)
+    : 0;
+  const apy = n > 1 ? apyVal.toFixed(0) + "%" : "—";
 
   // Win rate
   const winDays = dailyRets.filter(r => r > 0).length;
@@ -292,7 +295,7 @@ export default function App() {
     if (!name || !email) return;
     setSending(true);
     try {
-      const res = await fetch("https://formspree.io/f/xwvwjede", {
+      const res = await fetch("https://formspree.io/f/myklykel", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify({ name, email, message: company }),
