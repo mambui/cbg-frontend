@@ -233,10 +233,9 @@ export default function App() {
     return months <= 1 ? "1 month" : `${months} months`;
   })();
 
-  const FILTERS = ["1D","5D","1M","6M","YTD","1Y","Max"];
+  const FILTERS = ["5D","1M","6M","YTD","1Y","Max"];
 
   const getRawSlice = () => {
-    if (chartFilter === "1D") return CURVE.slice(-1);
     if (chartFilter === "5D") return CURVE.slice(-5);
     if (chartFilter === "1M") return CURVE.slice(-30);
     if (chartFilter === "6M") return CURVE.slice(-180);
@@ -508,7 +507,7 @@ export default function App() {
             {v:sharpe, l:"Sharpe Ratio"},
             {v:maxDDLabel, l:"Max Drawdown"},
             {v:winRate, l:"Win Rate"},
-            {v:closedTrades || "3,595", l:"Closed Trades"},
+            {v:closedTrades || "—", l:"Closed Trades"},
           ].map((s,i)=>(
             <div className="stat-item" key={i}>
               <div className={`stat-v ${s.pos?"pos":s.neg?"neg":""}`}>{s.v}</div>
