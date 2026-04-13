@@ -398,6 +398,8 @@ export default function App() {
   })();
 
   const periodLabel = chartFilter === "YTD" ? "Since Jan 2026" : chartFilter === "Max" ? "All time" : `Last ${chartFilter}`;
+
+  useEffect(() => {
     const fetch_ = async () => {
       try {
         const res = await fetch(`${BACKEND_URL}/api/stats`);
