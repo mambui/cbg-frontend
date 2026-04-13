@@ -118,7 +118,7 @@ const G = () => (
     .m-pill{background:#fff;border:1px solid #f0d8dc;border-radius:8px;padding:4px 10px;font-size:10px;font-weight:600;color:#1a9e6e;}
     .stats-bar{background:#fff;border-top:1px solid #f0d8dc;border-bottom:1px solid #f0d8dc;padding:24px 48px;}
     @media(max-width:700px){.stats-bar{padding:16px 18px;}}
-    .stats-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(7,1fr);}
+    .stats-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(8,1fr);}
     @media(max-width:900px){.stats-inner{grid-template-columns:repeat(3,1fr);}}
     .stat-item{padding:10px 14px;border-right:1px solid #f0d8dc;text-align:center;}
     .stat-item:last-child{border-right:none;}
@@ -331,6 +331,23 @@ export default function App() {
     });
   })();
 
+  // BTC stats (max drawdown + sharpe)
+  const { btcMaxDD, btcSharpe } = (() => {
+    const btcNavs = rawSlice.map(d => d.btc).filter(Boolean);
+    if (btcNavs.length < 2) return { btcMaxDD: "—", btcSharpe: "—" };
+    let peak = btcNavs[0], maxDD = 0;
+    for (const v of btcNavs) {
+      if (v > peak) peak = v;
+      const dd = (peak - v) / peak;
+      if (dd > maxDD) maxDD = dd;
+    }
+    const rets = btcNavs.slice(1).map((v,i) => (v - btcNavs[i]) / btcNavs[i]);
+    const mean = rets.reduce((a,b)=>a+b,0)/rets.length;
+    const std = Math.sqrt(rets.reduce((a,r)=>a+(r-mean)**2,0)/rets.length);
+    const sh = std > 0 ? ((mean/std)*Math.sqrt(365)).toFixed(2) : "—";
+    return { btcMaxDD: (maxDD*100).toFixed(1)+"%", btcSharpe: sh };
+  })();
+
   const periodLabel = chartFilter === "YTD" ? "Since Jan 2026" : chartFilter === "Max" ? "All time" : `Last ${chartFilter}`;
 
   useEffect(() => {
@@ -472,16 +489,6 @@ export default function App() {
                 <div className="pstat-label gray">Annual APY</div>
                 <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
               </div>
-              <div>
-                <div className="pstat-val">{betaVal}</div>
-                <div className="pstat-label gray">Beta vs BTC</div>
-                <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Market neutral</div>
-              </div>
-              <div>
-                <div className="pstat-val pos">{alpha}</div>
-                <div className="pstat-label gray">Alpha</div>
-                <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
-              </div>
             </div>
 
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
@@ -534,7 +541,7 @@ export default function App() {
               <div style={{color:"#b09098",marginBottom:4}}>{periodLabel}</div>
               <strong>Elevano Capital: {navReturnLabel}</strong> · Max drawdown <strong>{maxDDLabel}</strong> · Sharpe <strong>{sharpe}</strong> · Win rate <strong>{winRate}</strong>
               <br/>
-              <span className="neg">BTC: {btcReturnLabel}</span> · Beta <strong>{betaVal}</strong> · Alpha <strong style={{color:"#1a9e6e"}}>{alpha}</strong>
+              <span className="neg">BTC: {btcReturnLabel}</span> · Max drawdown <strong>{btcMaxDD}</strong> · Sharpe <strong>{btcSharpe}</strong>
               <div className="monthly-pills">
                 {monthlyPills.map((p,i) => (
                   <span key={i} className="m-pill" style={{color: p.pos ? "#1a9e6e" : "#e05050"}}>{p.label}</span>
@@ -552,7 +559,8 @@ export default function App() {
             {v:navReturnLabel, l:`Elevano · ${periodLabel}`, pos:parseFloat(navReturn)>=0, neg:parseFloat(navReturn)<0},
             {v:btcReturnLabel, l:`BTC · ${periodLabel}`, pos:parseFloat(btcReturn)>=0, neg:parseFloat(btcReturn)<0},
             {v:trackRecord, l:"Track Record"},
-            {v:sharpe, l:"Sharpe Ratio"},
+            {v:betaVal, l:"Beta"},
+            {v:alpha, l:"Alpha", pos:true},
             {v:maxDDLabel, l:"Max Drawdown"},
             {v:winRate, l:"Win Rate"},
             {v:closedTrades || "—", l:"Closed Trades"},
