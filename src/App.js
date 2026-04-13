@@ -492,6 +492,36 @@ export default function App() {
         </div>
       </div>
 
+      {/* WHY COPY ELEVANO */}
+      <section style={{padding:"48px 48px 40px",background:"#fff",borderTop:"1px solid #f0d8dc"}}>
+        <div style={{maxWidth:1100,margin:"0 auto",textAlign:"center"}}>
+          <h2 style={{fontFamily:"'Bricolage Grotesque',sans-serif",fontSize:"clamp(22px,3vw,36px)",fontWeight:700,letterSpacing:"-0.02em",color:"#1a0f0f",marginBottom:10}}>
+            Why copy Elevano Capital?
+          </h2>
+          <p style={{fontSize:14,color:"#7a5060",marginBottom:40,maxWidth:600,margin:"0 auto 40px"}}>
+            Simply allocate funds to Elevano Capital on Bybit — when we trade, so do you, automatically and in real time.
+          </p>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:32}}>
+            {[
+              { icon:<svg viewBox="0 0 24 24" style={{width:28,height:28,stroke:"#fff",strokeWidth:1.5,fill:"none"}}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>, title:"Systematic & Automated", desc:"Our strategies run 24/7 without emotion. Every trade is rule-based, tested, and executed automatically." },
+              { icon:<svg viewBox="0 0 24 24" style={{width:28,height:28,stroke:"#fff",strokeWidth:1.5,fill:"none"}}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, title:"Real-time execution", desc:"Copied trades are mirrored in your account in under a second. No delay, no slippage, no manual action needed." },
+              { icon:<svg viewBox="0 0 24 24" style={{width:28,height:28,stroke:"#fff",strokeWidth:1.5,fill:"none"}}><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>, title:"Invest alongside the trader", desc:"Elevano Capital trades its own capital using the same strategy. When you win, we win. Full alignment of interests." },
+              { icon:<svg viewBox="0 0 24 24" style={{width:28,height:28,stroke:"#fff",strokeWidth:1.5,fill:"none"}}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>, title:"Full custody, always", desc:"Your funds never leave your Bybit account. We only trade — you keep full control and ownership at all times." },
+              { icon:<svg viewBox="0 0 24 24" style={{width:28,height:28,stroke:"#fff",strokeWidth:1.5,fill:"none"}}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>, title:"Performance fee only", desc:"No management fee. No subscription. 10% only on profits. If you don't win, we don't earn — period." },
+              { icon:<svg viewBox="0 0 24 24" style={{width:28,height:28,stroke:"#fff",strokeWidth:1.5,fill:"none"}}><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>, title:"Proven track record", desc:"+45.7% since January 2026, Sharpe ratio of 3.55, max drawdown of 12% — auditable directly on Bybit." },
+            ].map((item, i) => (
+              <div key={i} className="fade-up" style={{display:"flex",flexDirection:"column",alignItems:"center",gap:16,animationDelay:`${i*0.08}s`}}>
+                <div style={{width:64,height:64,borderRadius:"50%",background:"linear-gradient(135deg,#c07a8a,#a05a8a)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                  {item.icon}
+                </div>
+                <div style={{fontFamily:"'Bricolage Grotesque',sans-serif",fontWeight:700,fontSize:15,color:"#1a0f0f"}}>{item.title}</div>
+                <div style={{fontSize:13,color:"#7a5060",lineHeight:1.65,textAlign:"center",maxWidth:240}}>{item.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* SECTION 2 */}
       <section className="section2">
         <div className="fade-up" style={{marginBottom:18}}>
