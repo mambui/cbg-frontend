@@ -175,9 +175,9 @@ const G = () => (
     .perf-footer strong{color:#1a9e6e;}.perf-footer .neg{color:#e05050;}
     
     .monthly-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
-    @media(max-width:480px){.monthly-pills{gap:6px;}}
+    @media(max-width:480px){.monthly-pills{gap:4px;}}
     .m-pill{background:#fff;border:1px solid #f0d8dc;border-radius:8px;padding:4px 10px;font-size:10px;font-weight:600;color:#1a9e6e;}
-    @media(max-width:480px){.m-pill{padding:3px 8px;font-size:9px;}}
+    @media(max-width:480px){.m-pill{padding:3px 6px;font-size:8px;border-radius:6px;}}
     
     /* ═══ STATS BAR ═══ */
     .stats-bar{background:#fff;border-top:1px solid #f0d8dc;border-bottom:1px solid #f0d8dc;padding:24px 48px;}
@@ -273,6 +273,12 @@ const G = () => (
     .footer{text-align:center;padding:20px 24px;font-size:10px;color:#c0a0a8;border-top:1px solid #f0d8dc;line-height:1.9;}
     @media(max-width:480px){.footer{padding:16px;font-size:9px;line-height:1.7;}}
     .footer a{color:#c07a8a;text-decoration:none;}
+    
+    /* ═══ FLOW DIAGRAM ═══ */
+    .flow-arrow{display:block;}
+    @media(max-width:640px){.flow-arrow{display:none;}}
+    .flow-card{margin:0 auto;}
+    @media(max-width:640px){.flow-card{margin:8px auto !important;max-width:100% !important;}}
   `}</style>
 );
 
@@ -836,11 +842,11 @@ export default function App() {
               { arrow:"→" },
               { icon:"👤", label:"Your Bybit Account", sub:"your funds, your custody" },
             ].map((item, i) => item.arrow ? (
-              <div key={i} style={{fontSize:28,color:"#e0c0c4",padding:"0 16px",fontWeight:300}}>→</div>
+              <div key={i} style={{fontSize:28,color:"#e0c0c4",padding:"0 16px",fontWeight:300}} className="flow-arrow">→</div>
             ) : (
-              <div key={i} className="fade-up" style={{
+              <div key={i} className="fade-up flow-card" style={{
                 background:"#fdf8f8",border:"1.5px solid #f0d8dc",borderRadius:16,
-                padding:"24px 28px",textAlign:"center",minWidth:180,
+                padding:"24px 28px",textAlign:"center",minWidth:180,width:"100%",maxWidth:280,
                 animationDelay:`${i*0.1}s`
               }}>
                 <div style={{fontSize:32,marginBottom:10}}>{item.icon}</div>
