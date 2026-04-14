@@ -299,7 +299,7 @@ export default function App() {
     if (varBtc === 0) return { alpha: "—", beta: "—" };
     const b = cov/varBtc;
     const dailyAlpha = meanNav - b * meanBtc;
-    const annAlpha = (dailyAlpha * 365 * 100).toFixed(1);
+    const annAlpha = (dailyAlpha * 365 * 100).toFixed(2);
     return { alpha: parseFloat(annAlpha) >= 0 ? `+${annAlpha}%` : `${annAlpha}%`, beta: b.toFixed(2) };
   })();
 
@@ -341,7 +341,7 @@ export default function App() {
       }
       
       const endNav = rows[rows.length-1].nav;
-      const ret = ((endNav - startNav) / startNav * 100).toFixed(1);
+      const ret = ((endNav - startNav) / startNav * 100).toFixed(2);
       const pos = parseFloat(ret) >= 0;
       return { label: `${label} ${pos?'+':''}${ret}%`, pos };
     });
@@ -369,7 +369,11 @@ export default function App() {
   const btcMonthlyPills = (() => {
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     const withBtc = navHistory.filter(r => r.btc_price).sort((a,b) => a.date.localeCompare(b.date));
-    if (!withBtc.length) return [];
+
+    // Hardcoded Jan since Dec 31 base not in Supabase
+    const hardcoded = [{ label: "Jan -10.17%", pos: false }];
+
+    if (!withBtc.length) return hardcoded;
 
     const byMonth = {};
     for (const row of withBtc) {
@@ -379,24 +383,21 @@ export default function App() {
       byMonth[key].push({ date: row.date, price: parseFloat(row.btc_price) });
     }
 
-    const sortedMonths = Object.keys(byMonth).sort();
-    const results = [];
+    const sortedMonths = Object.keys(byMonth).filter(k => k >= "2026-01").sort();
+    const results = [...hardcoded];
 
-    for (let i = 0; i < sortedMonths.length; i++) {
+    for (let i = 1; i < sortedMonths.length; i++) {
       const key = sortedMonths[i];
-      const year = parseInt(key.split('-')[0]);
       const monthIdx = parseInt(key.split('-')[1]);
-      if (year < 2026) continue; // skip Dec 2025 (used as base only)
-
       const rows = byMonth[key].sort((a,b) => a.date.localeCompare(b.date));
       const label = months[monthIdx];
       const prevKey = sortedMonths[i-1];
-      if (!prevKey) continue;
       const prevRows = byMonth[prevKey].sort((a,b) => a.date.localeCompare(b.date));
       const startPrice = prevRows[prevRows.length-1].price;
       const endPrice = rows[rows.length-1].price;
-      const ret = parseFloat(((endPrice - startPrice) / startPrice * 100).toFixed(1));
-      results.push({ label: `${label} ${ret >= 0?'+':''}${ret}%`, pos: ret >= 0 });
+      const ret = ((endPrice - startPrice) / startPrice * 100).toFixed(2);
+      const pos = parseFloat(ret) >= 0;
+      results.push({ label: `${label} ${pos?'+':''}${ret}%`, pos });
     }
     return results;
   })();
@@ -627,8 +628,8 @@ export default function App() {
             {v:navReturnLabel, l:`Elevano · ${periodLabel}`, pos:parseFloat(navReturn)>=0, neg:parseFloat(navReturn)<0},
             {v:btcReturnLabel, l:`BTC · ${periodLabel}`, pos:parseFloat(btcReturn)>=0, neg:parseFloat(btcReturn)<0},
             {v:trackRecord, l:"Track Record"},
-            {v:betaVal, l:"Beta"},
             {v:alpha, l:"Alpha", pos:true},
+            {v:betaVal, l:"Beta"},
             {v:maxDDLabel, l:"Max Drawdown"},
             {v:apiWinRate || winRate, l:"Win Rate"},
             {v:closedTrades || "—", l:"Closed Trades"},
