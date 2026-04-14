@@ -378,25 +378,29 @@ export default function App() {
 
     if (!withBtc.length) return hardcoded;
 
+    // Build month groups including Mar 31 as base for Apr
     const byMonth = {};
     for (const row of withBtc) {
-      const d = new Date(row.date);
-      if (row.date < "2026-03-31") continue; // include Mar 31 as base for Apr
-      const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth()).padStart(2,'0')}`;
+      if (row.date < "2026-03-31") continue;
+      const d = new Date(row.date + "T00:00:00Z");
+      const year = d.getUTCFullYear();
+      const month = d.getUTCMonth(); // 0=Jan, 2=Mar, 3=Apr
+      const key = `${year}-${String(month).padStart(2,'0')}`;
       if (!byMonth[key]) byMonth[key] = [];
       byMonth[key].push({ date: row.date, price: parseFloat(row.btc_price) });
     }
 
-    const sortedMonths = Object.keys(byMonth).filter(k => k >= "2026-03").sort();
+    // Mar 31 is in key "2026-02" (month index 2)
+    // Apr data is in key "2026-03" (month index 3)
+    const sortedKeys = Object.keys(byMonth).sort();
     const results = [...hardcoded];
 
-    for (let i = 1; i < sortedMonths.length; i++) {
-      const key = sortedMonths[i];
+    for (let i = 1; i < sortedKeys.length; i++) {
+      const key = sortedKeys[i];
       const monthIdx = parseInt(key.split('-')[1]);
-      const rows = byMonth[key].sort((a,b) => a.date.localeCompare(b.date));
       const label = months[monthIdx];
-      const prevKey = sortedMonths[i-1];
-      if (!prevKey || !byMonth[prevKey]) continue;
+      const rows = byMonth[key].sort((a,b) => a.date.localeCompare(b.date));
+      const prevKey = sortedKeys[i-1];
       const prevRows = byMonth[prevKey].sort((a,b) => a.date.localeCompare(b.date));
       const startPrice = prevRows[prevRows.length-1].price;
       const endPrice = rows[rows.length-1].price;
@@ -635,8 +639,8 @@ export default function App() {
             {v:navReturnLabel, l:`Elevano · ${periodLabel}`, pos:parseFloat(navReturn)>=0, neg:parseFloat(navReturn)<0},
             {v:btcReturnLabel, l:`BTC · ${periodLabel}`, pos:parseFloat(btcReturn)>=0, neg:parseFloat(btcReturn)<0},
             {v:trackRecord, l:"Track Record"},
-            {v:alpha, l:"Alpha", pos:true},
-            {v:betaVal, l:"Beta"},
+            {v:alpha, l:"Alpha (ann.)", pos:true},
+            {v:betaVal, l:"Beta vs BTC"},
             {v:maxDDLabel, l:"Max Drawdown"},
             {v:apiWinRate || winRate, l:"Win Rate"},
             {v:closedTrades || "—", l:"Closed Trades"},
