@@ -261,8 +261,8 @@ export default function App() {
   const btcStart = rawSlice[0]?.btc || 1000;
   const btcEnd = rawSlice[n-1]?.btc || 1000;
 
-  const navReturn = n > 1 ? ((navEnd - navStart) / navStart * 100).toFixed(1) : "0.0";
-  const btcReturn = n > 1 ? ((btcEnd - btcStart) / btcStart * 100).toFixed(1) : "0.0";
+  const navReturn = n > 1 ? ((navEnd - navStart) / navStart * 100).toFixed(2) : "0.00";
+  const btcReturn = n > 1 ? ((btcEnd - btcStart) / btcStart * 100).toFixed(2) : "0.00";
   const navReturnLabel = parseFloat(navReturn) >= 0 ? `+${navReturn}%` : `${navReturn}%`;
   const btcReturnLabel = parseFloat(btcReturn) >= 0 ? `+${btcReturn}%` : `${btcReturn}%`;
 
@@ -370,20 +370,25 @@ export default function App() {
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     const withBtc = navHistory.filter(r => r.btc_price).sort((a,b) => a.date.localeCompare(b.date));
 
-    // Hardcoded Jan since Dec 31 base not in Supabase
-    const hardcoded = [{ label: "Jan -10.17%", pos: false }];
+    // Jan hardcoded (Dec 31 base not in Supabase)
+    // Feb hardcoded (Jan 31 btc_price missing in Supabase)
+    const hardcoded = [
+      { label: "Jan -10.17%", pos: false },
+      { label: "Feb -14.94%", pos: false },
+    ];
 
     if (!withBtc.length) return hardcoded;
 
     const byMonth = {};
     for (const row of withBtc) {
       const d = new Date(row.date);
+      if (row.date < "2026-02-01") continue; // skip Jan (hardcoded)
       const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth()).padStart(2,'0')}`;
       if (!byMonth[key]) byMonth[key] = [];
       byMonth[key].push({ date: row.date, price: parseFloat(row.btc_price) });
     }
 
-    const sortedMonths = Object.keys(byMonth).filter(k => k >= "2026-01").sort();
+    const sortedMonths = Object.keys(byMonth).filter(k => k >= "2026-02").sort();
     const results = [...hardcoded];
 
     for (let i = 1; i < sortedMonths.length; i++) {
@@ -392,6 +397,7 @@ export default function App() {
       const rows = byMonth[key].sort((a,b) => a.date.localeCompare(b.date));
       const label = months[monthIdx];
       const prevKey = sortedMonths[i-1];
+      if (!prevKey || !byMonth[prevKey]) continue;
       const prevRows = byMonth[prevKey].sort((a,b) => a.date.localeCompare(b.date));
       const startPrice = prevRows[prevRows.length-1].price;
       const endPrice = rows[rows.length-1].price;
