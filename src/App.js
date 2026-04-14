@@ -496,20 +496,20 @@ export default function App() {
           </div>
           <div className="fade-up d1" style={{display:"flex",alignItems:"center",gap:8,margin:"12px 0 16px",fontSize:13,color:"#8a6a70",fontWeight:500}}>
             <span>Operating in</span>
-            <div style={{display:"flex",alignItems:"center",gap:6,background:"#fff",border:"1.5px solid #f0d8dc",borderRadius:999,padding:"5px 16px"}}>
+            <a href={BYBIT_LINK} target="_blank" rel="noreferrer" style={{display:"flex",alignItems:"center",gap:6,background:"#fff",border:"1.5px solid #f0d8dc",borderRadius:999,padding:"5px 16px",textDecoration:"none",cursor:"pointer"}}>
               <svg viewBox="0 0 80 24" style={{height:18,width:"auto"}} xmlns="http://www.w3.org/2000/svg">
                 <text x="0" y="18" fontFamily="Arial Black, sans-serif" fontWeight="900" fontSize="20" fill="#0f1117" letterSpacing="-1">BYB</text>
                 <rect x="52" y="2" width="4" height="20" fill="#f7931a"/>
                 <text x="57" y="18" fontFamily="Arial Black, sans-serif" fontWeight="900" fontSize="20" fill="#0f1117">T</text>
               </svg>
-            </div>
+            </a>
           </div>
           <h1 className="hero-title fade-up d2">
             Elevano<br/>Capital<br/>
             <span style={{fontSize:"0.55em",fontWeight:700,letterSpacing:"-0.01em"}}>Crypto Hedge Fund</span>
           </h1>
           <p className="hero-sub fade-up d3" style={{fontStyle:"normal",marginBottom:26}}>
-            First of its kind, a fully automated crypto hedge fund deploying mid-frequency long/short systematic strategies, <strong style={{color:"#c07a8a"}}>without leverage</strong>. Combining trend following, mean reversion, and whale tracking, giving you institutional-grade returns, directly into your own Bybit (Tier-1 crypto exchange) account.
+            First of its kind, a fully automated crypto hedge fund deploying mid-frequency long/short systematic strategies, <strong style={{color:"#c07a8a"}}>without leverage</strong>. Combining trend following, mean reversion, and whales tracking, giving you institutional-grade returns, directly into your own Bybit (Tier-1 crypto exchange) account.
           </p>
           <div className="btn-row fade-up d3">
             <a href={BYBIT_LINK} target="_blank" rel="noreferrer" className="btn-primary">Copy Trade →</a>
