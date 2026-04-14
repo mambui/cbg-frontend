@@ -381,7 +381,7 @@ export default function App() {
     const byMonth = {};
     for (const row of withBtc) {
       const d = new Date(row.date);
-      if (row.date < "2026-03-01") continue;
+      if (row.date < "2026-03-31") continue; // include Mar 31 as base for Apr
       const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth()).padStart(2,'0')}`;
       if (!byMonth[key]) byMonth[key] = [];
       byMonth[key].push({ date: row.date, price: parseFloat(row.btc_price) });
