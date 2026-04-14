@@ -229,12 +229,10 @@ export default function App() {
 
   // Dynamic track record — months from first date to today
   const trackRecord = (() => {
-    if (!navHistory.length) return "3 months";
-    const first = new Date(navHistory.find(r => r.date >= "2026-01-01")?.date || "2026-01-01");
+    const start = new Date('2026-01-01');
     const now = new Date();
-    const months = (now.getFullYear() - first.getUTCFullYear()) * 12 + (now.getMonth() - first.getUTCMonth());
-    const total = Math.max(months, 1);
-    return total <= 1 ? "1 month" : `${total} months`;
+    const months = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth()) + 1;
+    return months <= 1 ? "1 month" : `${months} months`;
   })();
 
   const FILTERS = ["5D","1M","6M","YTD","1Y","Max"];
