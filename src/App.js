@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
- 
+
 const BACKEND_URL = 'https://cbg-backend-production-fdd7.up.railway.app';
 const BYBIT_LINK = 'https://www.bybit.com/invite?ref=48DYXE';
 const BYBIT_COPY_PROFILE = 'https://www.bybit.com/copyTrade/trade-center/detail?leaderMark=gOerGIfY7IJ5keZeX0RfBg%3D%3D&copyFrom=Search&profileDay=90';
 const TWITTER_LINK = 'https://x.com/elevano_capital';
 const TELEGRAM_LINK = 'https://t.me/elevano_capital';
 const CONTACT_EMAIL = 'elevanocapital@gmail.com';
- 
+
 /* ── BTC benchmark data (static) ── */
 const BTC_DATA = {
   "2026-01-01":1000.0,"2026-01-02":943.06,"2026-01-03":954.12,"2026-01-04":957.45,
@@ -38,7 +38,7 @@ const BTC_DATA = {
   "2026-04-10":766,"2026-04-11":774,"2026-04-12":777,
   "2026-04-13":753,
 };
- 
+
 const FEATURES = [
   { icon:"brain", name:"Quantitative Intelligence", desc:"Mid-frequency systematic strategies built on rigorous quantitative models, stress-tested across multiple market regimes." },
   { icon:"shield", name:"Risk-First Approach", desc:"Every position is governed by hard drawdown limits and dynamic position sizing. Capital preservation is the first mandate." },
@@ -47,7 +47,7 @@ const FEATURES = [
   { icon:"server", name:"Institutional Infrastructure", desc:"Automated execution, independent accounting, and battle-tested risk systems bringing professional-grade infrastructure to every user." },
   { icon:"globe", name:"Accessible to All", desc:"As a Bybit Copy Trading strategy, Elevano Capital opens institutional-quality systematic trading to users worldwide." },
 ];
- 
+
 const Ic = ({name}) => {
   const s = {width:22,height:22,stroke:"#c07a8a",strokeWidth:1.5,fill:"none"};
   if(name==="brain") return <svg viewBox="0 0 24 24" style={s}><path d="M12 2C8.5 2 6 4.5 6 7.5c0 1.5.5 2.8 1.4 3.8C6.5 12.3 6 13.6 6 15a6 6 0 0012 0c0-1.4-.5-2.7-1.4-3.7.9-1 1.4-2.3 1.4-3.8C18 4.5 15.5 2 12 2z"/><line x1="12" y1="2" x2="12" y2="22"/></svg>;
@@ -58,7 +58,7 @@ const Ic = ({name}) => {
   if(name==="globe") return <svg viewBox="0 0 24 24" style={s}><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>;
   return null;
 };
- 
+
 const G = () => (
   <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Bricolage+Grotesque:wght@300;400;500;600;700;800&display=swap');
@@ -281,13 +281,10 @@ const G = () => (
     @media(max-width:640px){.flow-card{margin:8px auto !important;max-width:100% !important;}}
     
     /* ═══ FEE STRUCTURE ═══ */
-    .fee-grid{display:grid;justify-items:center;}
-    @media(max-width:640px){.fee-grid{display:flex;flex-direction:column;align-items:center;}}
-    .fee-card{width:100%;max-width:280px;}
-    @media(max-width:640px){.fee-card{margin:0 auto;max-width:100% !important;}}
+    @media(max-width:640px){.fee-card{flex:1 1 100% !important;max-width:100% !important;}}
   `}</style>
 );
- 
+
 const ChartTip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
@@ -302,7 +299,7 @@ const ChartTip = ({ active, payload, label }) => {
     </div>
   );
 };
- 
+
 function extractLive(data) {
   try {
     const coin = data?.wallet?.list?.[0]?.coin?.find(c => c.coin==='USDT');
@@ -310,7 +307,7 @@ function extractLive(data) {
     return { equity: parseFloat(coin.equity).toFixed(2), unrealisedPnl: parseFloat(coin.unrealisedPnl).toFixed(2) };
   } catch { return null; }
 }
- 
+
 function FAQItem({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
@@ -323,7 +320,7 @@ function FAQItem({ q, a }) {
     </div>
   );
 }
- 
+
 export default function App() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -336,7 +333,7 @@ export default function App() {
   const [closedTrades, setClosedTrades] = useState(null);
   const [apiWinRate, setApiWinRate] = useState(null);
   const [chartFilter, setChartFilter] = useState("YTD");
- 
+
   // Build CURVE from live Supabase data
   const CURVE = (() => {
     if (!navHistory.length) return [];
@@ -352,7 +349,7 @@ export default function App() {
       return { date: label, nav: parseFloat(row.nav), btc };
     }).filter(d => d.btc !== null);
   })();
- 
+
   // Dynamic track record — months from first date to today
   const trackRecord = (() => {
     const start = new Date('2026-01-01');
@@ -360,16 +357,16 @@ export default function App() {
     const months = (now.getFullYear() - start.getFullYear()) * 12 + (now.getMonth() - start.getMonth()) + 1;
     return months <= 1 ? "1 month" : `${months} months`;
   })();
- 
+
   const FILTERS = ["5D","1M","6M","YTD","1Y","Max"];
- 
+
   const getRawSlice = () => {
     if (chartFilter === "5D") return CURVE.slice(-5);
     if (chartFilter === "1M") return CURVE.slice(-30);
     if (chartFilter === "6M") return CURVE.slice(-180);
     return CURVE;
   };
- 
+
   // Normalize both lines to start at 1000
   const rawSlice = getRawSlice();
   const navBase = rawSlice[0]?.nav || 1000;
@@ -379,19 +376,19 @@ export default function App() {
     nav: parseFloat((d.nav / navBase * 1000).toFixed(2)),
     btc: parseFloat((d.btc / btcBase * 1000).toFixed(2)),
   }));
- 
+
   // ── Dynamic metrics computed from rawSlice ──
   const n = rawSlice.length;
   const navStart = rawSlice[0]?.nav || 1000;
   const navEnd = rawSlice[n-1]?.nav || 1000;
   const btcStart = rawSlice[0]?.btc || 1000;
   const btcEnd = rawSlice[n-1]?.btc || 1000;
- 
+
   const navReturn = n > 1 ? ((navEnd - navStart) / navStart * 100).toFixed(2) : "0.00";
   const btcReturn = n > 1 ? ((btcEnd - btcStart) / btcStart * 100).toFixed(2) : "0.00";
   const navReturnLabel = parseFloat(navReturn) >= 0 ? `+${navReturn}%` : `${navReturn}%`;
   const btcReturnLabel = parseFloat(btcReturn) >= 0 ? `+${btcReturn}%` : `${btcReturn}%`;
- 
+
   // Max drawdown
   let peak = rawSlice[0]?.nav || 1000, maxDD = 0;
   for (const d of rawSlice) {
@@ -400,7 +397,7 @@ export default function App() {
     if (dd > maxDD) maxDD = dd;
   }
   const maxDDLabel = (maxDD * 100).toFixed(1) + "%";
- 
+
   // Daily returns for Sharpe + win rate
   const dailyRets = rawSlice.slice(1).map((d, i) =>
     (d.nav - rawSlice[i].nav) / rawSlice[i].nav
@@ -410,7 +407,7 @@ export default function App() {
     ? Math.sqrt(dailyRets.reduce((a,b)=>a+(b-meanRet)**2,0)/dailyRets.length)
     : 0;
   const sharpe = stdRet > 0 ? ((meanRet / stdRet) * Math.sqrt(365)).toFixed(2) : "—";
- 
+
   // Alpha & Beta vs BTC
   const { alpha, beta: betaVal } = (() => {
     if (rawSlice.length < 5) return { alpha: "—", beta: "—" };
@@ -428,15 +425,15 @@ export default function App() {
     const annAlpha = (dailyAlpha * 365 * 100).toFixed(2);
     return { alpha: parseFloat(annAlpha) >= 0 ? `+${annAlpha}%` : `${annAlpha}%`, beta: b.toFixed(2) };
   })();
- 
+
   // Win rate
   const winDays = dailyRets.filter(r => r > 0).length;
   const winRate = dailyRets.length ? ((winDays / dailyRets.length) * 100).toFixed(1) + "%" : "—";
- 
+
   // APY = (return% / number of days) * 365
   const apyVal = n > 1 ? (parseFloat(navReturn) / n * 365) : 0;
   const apy = n > 1 ? apyVal.toFixed(0) + "%" : "—";
- 
+
   // Dynamic monthly returns from navHistory — last day of prev month as base
   const monthlyPills = (() => {
     if (!navHistory.length) return [];
@@ -472,7 +469,7 @@ export default function App() {
       return { label: `${label} ${pos?'+':''}${ret}%`, pos };
     });
   })();
- 
+
   // BTC stats (max drawdown + sharpe)
   const { btcMaxDD, btcSharpe } = (() => {
     const btcNavs = rawSlice.map(d => d.btc).filter(Boolean);
@@ -489,21 +486,21 @@ export default function App() {
     const sh = std > 0 ? ((mean/std)*Math.sqrt(365)).toFixed(2) : "—";
     return { btcMaxDD: (maxDD*100).toFixed(1)+"%", btcSharpe: sh };
   })();
- 
+
   // BTC monthly pills from navHistory btc_price
   // BTC monthly returns — fully dynamic, uses Dec 31 2025 as Jan base
   const btcMonthlyPills = (() => {
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     const withBtc = navHistory.filter(r => r.btc_price).sort((a,b) => a.date.localeCompare(b.date));
- 
+
     const hardcoded = [
       { label: "Jan -10.17%", pos: false },
       { label: "Feb -14.94%", pos: false },
       { label: "Mar +1.81%", pos: true },
     ];
- 
+
     if (!withBtc.length) return hardcoded;
- 
+
     // Build month groups including Mar 31 as base for Apr
     const byMonth = {};
     for (const row of withBtc) {
@@ -515,12 +512,12 @@ export default function App() {
       if (!byMonth[key]) byMonth[key] = [];
       byMonth[key].push({ date: row.date, price: parseFloat(row.btc_price) });
     }
- 
+
     // Mar 31 is in key "2026-02" (month index 2)
     // Apr data is in key "2026-03" (month index 3)
     const sortedKeys = Object.keys(byMonth).sort();
     const results = [...hardcoded];
- 
+
     for (let i = 1; i < sortedKeys.length; i++) {
       const key = sortedKeys[i];
       const monthIdx = parseInt(key.split('-')[1]);
@@ -536,9 +533,9 @@ export default function App() {
     }
     return results;
   })();
- 
+
   const periodLabel = chartFilter === "YTD" ? "Since Jan 2026" : chartFilter === "Max" ? "All time" : `Last ${chartFilter}`;
- 
+
   useEffect(() => {
     const fetch_ = async () => {
       try {
@@ -567,13 +564,13 @@ export default function App() {
     const ivNav = setInterval(fetchNav, 3600000);
     return () => { clearInterval(iv); clearInterval(ivNav); };
   }, []);
- 
+
   const live = extractLive(liveData);
   const minVal = Math.min(...filteredCurve.map(d => Math.min(d.nav, d.btc)));
   const maxVal = Math.max(...filteredCurve.map(d => Math.max(d.nav, d.btc)));
- 
+
   const [sending, setSending] = useState(false);
- 
+
   const handleSubmit = async () => {
     if (!name || !email) return;
     setSending(true);
@@ -590,11 +587,11 @@ export default function App() {
     }
     setSending(false);
   };
- 
+
   return (
     <>
       <G />
- 
+
       {/* NAV */}
       <nav className="nav">
         <div className="nav-logo">
@@ -613,7 +610,7 @@ export default function App() {
           <a href={BYBIT_LINK} target="_blank" rel="noreferrer" className="nav-btn">Copy Trade →</a>
         </div>
       </nav>
- 
+
       {/* SECTION 1 */}
       <div className="hero">
         <div>
@@ -643,7 +640,7 @@ export default function App() {
             <a href="https://elevano-factsheet-1.onrender.com" target="_blank" rel="noreferrer" className="btn-outline">Performance Report</a>
           </div>
         </div>
- 
+
         <div className="fade-up d2">
           <div className="perf-card">
             <div className="perf-header">
@@ -658,7 +655,7 @@ export default function App() {
               </div>
               <div className="nav-dot">NAV</div>
             </div>
- 
+
             <div className="perf-stats" style={{gridTemplateColumns:"repeat(4,1fr)"}}>
               <div>
                 <div className={`pstat-val ${parseFloat(navReturn)>=0?"pos":"neg"}`}>{navReturnLabel}</div>
@@ -681,7 +678,7 @@ export default function App() {
                 <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Annualised</div>
               </div>
             </div>
- 
+
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6,flexWrap:"wrap",gap:8}}>
               <div className="chart-legend" style={{margin:0}}>
                 <div className="legend-item"><div className="legend-dot" style={{background:"#c07a8a"}}/>Return Since Inception</div>
@@ -699,7 +696,7 @@ export default function App() {
                 ))}
               </div>
             </div>
- 
+
             <ResponsiveContainer width="100%" height={typeof window !== 'undefined' && window.innerWidth < 480 ? 140 : 160}>
               <AreaChart data={filteredCurve} margin={{top:4,right:4,left:0,bottom:0}}>
                 <defs>
@@ -725,12 +722,12 @@ export default function App() {
                   activeDot={{r:4,fill:"#c07a8a",strokeWidth:0}}/>
               </AreaChart>
             </ResponsiveContainer>
- 
+
             <div className="chart-caption">$1,000 invested in Elevano Capital — since Jan 2026</div>
- 
+
             <div className="perf-footer">
               <div style={{color:"#b09098",marginBottom:8,fontWeight:600}}>{periodLabel}</div>
- 
+
               {/* Elevano row */}
               <div style={{marginBottom:6}}>
                 <strong style={{color:"#1a0f0f"}}>Elevano Capital:</strong>
@@ -742,7 +739,7 @@ export default function App() {
                   <span key={i} className="m-pill" style={{color: p.pos ? "#1a9e6e" : "#e05050"}}>{p.label}</span>
                 ))}
               </div>
- 
+
               {/* BTC row */}
               <div style={{marginBottom:6}}>
                 <strong style={{color:"#1a0f0f"}}>BTC:</strong>
@@ -758,7 +755,7 @@ export default function App() {
           </div>
         </div>
       </div>
- 
+
       {/* STATS BAR */}
       <div className="stats-bar">
         <div className="stats-inner">
@@ -779,7 +776,7 @@ export default function App() {
           ))}
         </div>
       </div>
- 
+
       {/* WHY COPY ELEVANO */}
       <section style={{padding:"48px 48px 40px",background:"#fff",borderTop:"1px solid #f0d8dc"}}>
         <div style={{maxWidth:1100,margin:"0 auto",textAlign:"center"}}>
@@ -809,7 +806,7 @@ export default function App() {
           </div>
         </div>
       </section>
- 
+
       {/* SECTION 2 */}
       <section className="section2">
         <div className="fade-up" style={{marginBottom:18}}>
@@ -828,7 +825,7 @@ export default function App() {
           ))}
         </div>
       </section>
- 
+
       {/* SECTION 3 — HOW IT WORKS */}
       <section style={{padding:"40px 48px 32px",background:"#fff",borderTop:"1px solid #f0d8dc"}}>
         <div style={{maxWidth:1100,margin:"0 auto"}}>
@@ -838,7 +835,7 @@ export default function App() {
           <div className="gradient-headline fade-up d1" style={{marginBottom:40}}>
             Simple. Transparent. Yours.
           </div>
- 
+
           {/* Flow diagram */}
           <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:0,flexWrap:"wrap",marginBottom:40}}>
             {[
@@ -861,9 +858,9 @@ export default function App() {
               </div>
             ))}
           </div>
- 
+
           {/* Fee structure */}
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:16}} className="fee-grid">
+          <div style={{display:"flex",flexWrap:"wrap",justifyContent:"center",gap:16,maxWidth:1200,margin:"0 auto"}} className="fee-grid">
             {[
               { icon:"💰", title:"You keep 90%", desc:"of all profits generated in your account." },
               { icon:"🤝", title:"10% performance fee", desc:"Only when you profit. If you don't win, we don't earn." },
@@ -872,7 +869,8 @@ export default function App() {
             ].map((item, i) => (
               <div key={i} className="fade-up fee-card" style={{
                 background:"#fdf8f8",border:"1.5px solid #f0d8dc",borderRadius:14,
-                padding:"20px",animationDelay:`${i*0.08}s`
+                padding:"20px",animationDelay:`${i*0.08}s`,
+                flex:"1 1 240px",maxWidth:280,minWidth:240
               }}>
                 <div style={{fontSize:24,marginBottom:10}}>{item.icon}</div>
                 <div style={{fontWeight:700,fontSize:13,color:"#1a0f0f",marginBottom:6}}>{item.title}</div>
@@ -880,7 +878,7 @@ export default function App() {
               </div>
             ))}
           </div>
- 
+
           {/* Risk warning */}
           <div style={{
             marginTop:24,
@@ -899,7 +897,7 @@ export default function App() {
           </div>
         </div>
       </section>
- 
+
       {/* SECTION — HOW TO JOIN */}
       <section style={{padding:"40px 48px 32px",background:"#fff",borderTop:"1px solid #f0d8dc"}}>
         <div style={{maxWidth:800,margin:"0 auto"}}>
@@ -912,9 +910,9 @@ export default function App() {
           <p style={{fontSize:14,color:"#7a5060",marginBottom:36,lineHeight:1.6}}>
             No experience needed. Setup takes less than 5 minutes.
           </p>
- 
+
           <div style={{display:"flex",flexDirection:"column",gap:24}}>
- 
+
             {/* Step 1 */}
             <div className="fade-up" style={{background:"#fdf8f8",border:"1.5px solid #f0d8dc",borderRadius:16,padding:"24px",}}>
               <div style={{display:"flex",gap:16,alignItems:"flex-start",marginBottom:16}}>
@@ -927,7 +925,7 @@ export default function App() {
                 </div>
               </div>
             </div>
- 
+
             {/* Step 2 */}
             <div className="fade-up" style={{background:"#fdf8f8",border:"1.5px solid #f0d8dc",borderRadius:16,padding:"24px",}}>
               <div style={{display:"flex",gap:16,alignItems:"flex-start",marginBottom:16}}>
@@ -939,7 +937,7 @@ export default function App() {
                 </div>
               </div>
             </div>
- 
+
             {/* Step 3 */}
             <div className="fade-up" style={{background:"#fdf8f8",border:"1.5px solid #f0d8dc",borderRadius:16,padding:"24px",}}>
               <div style={{display:"flex",gap:16,alignItems:"flex-start",marginBottom:16}}>
@@ -953,7 +951,7 @@ export default function App() {
                 </div>
               </div>
             </div>
- 
+
             {/* Step 4 */}
             <div className="fade-up" style={{background:"rgba(192,122,138,0.04)",border:"1.5px solid rgba(192,122,138,0.25)",borderRadius:16,padding:"24px",}}>
               <div style={{display:"flex",gap:16,alignItems:"flex-start",marginBottom:16}}>
@@ -972,9 +970,9 @@ export default function App() {
                 </div>
               </div>
             </div>
- 
+
           </div>
- 
+
           <div style={{marginTop:28,textAlign:"center"}}>
             <a href={BYBIT_LINK} target="_blank" rel="noreferrer" className="btn-primary" style={{display:"inline-flex"}}>
               Get started on Bybit →
@@ -982,7 +980,7 @@ export default function App() {
           </div>
         </div>
       </section>
- 
+
       {/* SECTION 5 — FAQ */}
       <section style={{padding:"40px 48px 32px",background:"#fdf8f8",borderTop:"1px solid #f0d8dc"}}>
         <div style={{maxWidth:800,margin:"0 auto"}}>
@@ -1022,7 +1020,7 @@ export default function App() {
           </div>
         </div>
       </section>
- 
+
       {/* SECTION 5 — CONTACT */}
       <div className="section3-wrap">
         <div className="section3">
@@ -1031,7 +1029,7 @@ export default function App() {
           </div>
           <h2 className="s3-title fade-up d1">Maximum value through<br/>direct communication</h2>
           <p className="s3-sub fade-up d2">Connect with us through our preferred channels. Elevano Capital believes in transparent, direct communication to deliver the best value to its users.</p>
- 
+
           <div className="socials fade-up d3">
             <a href={TWITTER_LINK} target="_blank" rel="noreferrer" className="social-btn" title="X / Twitter">
               <svg viewBox="0 0 24 24" style={{width:17,height:17,fill:"#1a0f0f"}}>
@@ -1051,7 +1049,7 @@ export default function App() {
               </svg>
             </a>
           </div>
- 
+
           <div className="contact-card fade-up d2">
             <div className="contact-left">
               <div className="contact-badge">Speak with the founders</div>
@@ -1068,7 +1066,7 @@ export default function App() {
               </button>
             </div>
           </div>
- 
+
           <div className="data-notice">
             <strong>Data Protection (nDSG / Swiss FADP)</strong> — By submitting this form, you agree that your name, email, and company name will be used solely to respond to your inquiry. Your data is stored securely, never shared with third parties, and will be deleted upon request. Contact <a href={`mailto:${CONTACT_EMAIL}`} style={{color:"#c07a8a"}}>{CONTACT_EMAIL}</a> to exercise your rights under Swiss law.{" "}
             <span style={{cursor:"pointer",textDecoration:"underline",color:"#c07a8a"}} onClick={()=>setPrivacyOpen(!privacyOpen)}>{privacyOpen?"Hide":"Learn more"}</span>
@@ -1076,7 +1074,7 @@ export default function App() {
           </div>
         </div>
       </div>
- 
+
       {/* FOOTER */}
       <div className="footer">
         © {new Date().getFullYear()} Elevano Capital · <a href={TWITTER_LINK} target="_blank" rel="noreferrer">@elevano_capital</a> · <a href={TELEGRAM_LINK} target="_blank" rel="noreferrer">Telegram</a>
@@ -1086,4 +1084,3 @@ export default function App() {
     </>
   );
 }
- 
