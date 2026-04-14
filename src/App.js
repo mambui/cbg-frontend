@@ -370,11 +370,10 @@ export default function App() {
     const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     const withBtc = navHistory.filter(r => r.btc_price).sort((a,b) => a.date.localeCompare(b.date));
 
-    // Jan hardcoded (Dec 31 base not in Supabase)
-    // Feb hardcoded (Jan 31 btc_price missing in Supabase)
     const hardcoded = [
       { label: "Jan -10.17%", pos: false },
       { label: "Feb -14.94%", pos: false },
+      { label: "Mar +1.81%", pos: true },
     ];
 
     if (!withBtc.length) return hardcoded;
@@ -382,13 +381,13 @@ export default function App() {
     const byMonth = {};
     for (const row of withBtc) {
       const d = new Date(row.date);
-      if (row.date < "2026-02-01") continue; // skip Jan (hardcoded)
+      if (row.date < "2026-03-01") continue;
       const key = `${d.getUTCFullYear()}-${String(d.getUTCMonth()).padStart(2,'0')}`;
       if (!byMonth[key]) byMonth[key] = [];
       byMonth[key].push({ date: row.date, price: parseFloat(row.btc_price) });
     }
 
-    const sortedMonths = Object.keys(byMonth).filter(k => k >= "2026-02").sort();
+    const sortedMonths = Object.keys(byMonth).filter(k => k >= "2026-03").sort();
     const results = [...hardcoded];
 
     for (let i = 1; i < sortedMonths.length; i++) {
@@ -603,7 +602,8 @@ export default function App() {
 
               {/* Elevano row */}
               <div style={{marginBottom:6}}>
-                <strong>Elevano Capital: {navReturnLabel}</strong>
+                <strong style={{color:"#1a0f0f"}}>Elevano Capital:</strong>
+                {" "}<strong style={{color: parseFloat(navReturn)>=0 ? "#1a9e6e" : "#e05050"}}>{navReturnLabel}</strong>
                 {" · "}Max drawdown <strong style={{color:"#1a0f0f"}}>{maxDDLabel}</strong>
               </div>
               <div className="monthly-pills" style={{marginBottom:10}}>
@@ -614,7 +614,8 @@ export default function App() {
 
               {/* BTC row */}
               <div style={{marginBottom:6}}>
-                <span className="neg">BTC: {btcReturnLabel}</span>
+                <strong style={{color:"#1a0f0f"}}>BTC:</strong>
+                {" "}<strong style={{color: parseFloat(btcReturn)>=0 ? "#1a9e6e" : "#e05050"}}>{btcReturnLabel}</strong>
                 {" · "}Max drawdown <strong style={{color:"#1a0f0f"}}>{btcMaxDD}</strong>
               </div>
               <div className="monthly-pills">
