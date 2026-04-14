@@ -171,13 +171,15 @@ export default function App() {
   const [lastUpdated, setLastUpdated] = useState(null);
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [navHistory, setNavHistory] = useState([]);
+  const [navIntraday, setNavIntraday] = useState([]); // for Sharpe + MaxDD only
   const [closedTrades, setClosedTrades] = useState(null);
+  const [winRate, setWinRate] = useState(null); // from Bybit by trade
   const [chartFilter, setChartFilter] = useState("YTD");
 
-  // ── exclude nav=0 rows (Dec 31 base row) ──
+  // ── exclude nav=0 rows ──
   const cleanNav = navHistory.filter(r => parseFloat(r.nav) > 0);
 
-  // ── DAILY CURVE: 100% from Supabase nav_history, both lines start at 1000 ──
+  // ── DAILY CURVE: 100% from Supabase, chart only ──
   const DAILY_CURVE = (() => {
     if (!cleanNav.length) return [];
     const MO = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -196,7 +198,7 @@ export default function App() {
       .filter(d => d.btc !== null);
   })();
 
-  // ── FILTER SLICE ──
+  // ── CHART FILTER SLICE (daily only — no intraday mixing) ──
   const FILTERS = ["5D","1M","6M","YTD","1Y","Max"];
   const rawSlice = (() => {
     if (chartFilter === "5D")  return DAILY_CURVE.slice(-5);
@@ -205,7 +207,6 @@ export default function App() {
     return DAILY_CURVE;
   })();
 
-  // normalize slice to start at 1000
   const sliceNavBase = rawSlice[0]?.nav || 1;
   const sliceBtcBase = rawSlice[0]?.btc || 1;
   const filteredCurve = rawSlice.map(d => ({
@@ -214,7 +215,7 @@ export default function App() {
     btc: d.btc ? parseFloat((d.btc / sliceBtcBase * 1000).toFixed(2)) : null,
   }));
 
-  // ── RETURN METRICS ──
+  // ── RETURN METRICS (daily) ──
   const n = rawSlice.length;
   const navStart = rawSlice[0]?.nav   || 1;
   const navEnd   = rawSlice[n-1]?.nav || 1;
@@ -225,31 +226,41 @@ export default function App() {
   const navReturnLabel = parseFloat(navReturn) >= 0 ? `+${navReturn}%` : `${navReturn}%`;
   const btcReturnLabel = parseFloat(btcReturn) >= 0 ? `+${btcReturn}%` : `${btcReturn}%`;
 
-  // ── MAX DRAWDOWN: 100% daily, all history (catches real drawdowns) ──
-  const { maxDDLabel } = (() => {
-    const navs = DAILY_CURVE.map(r => r.nav);
-    if (navs.length < 2) return { maxDDLabel: "—" };
-    let peak = navs[0], mx = 0;
-    for (const v of navs) {
+  // ── MAX DRAWDOWN: intraday if available, else daily ──
+  // Intraday captures real intraday dips that daily closes miss
+  const maxDDLabel = (() => {
+    const src = navIntraday.length > 50
+      ? navIntraday.map(r => parseFloat(r.nav))
+      : DAILY_CURVE.map(r => r.nav);
+    if (src.length < 2) return "—";
+    let peak = src[0], mx = 0;
+    for (const v of src) {
       if (v > peak) peak = v;
       const dd = (peak - v) / peak;
       if (dd > mx) mx = dd;
     }
-    return { maxDDLabel: (mx * 100).toFixed(2) + "%" };
+    return (mx * 100).toFixed(2) + "%";
   })();
 
-  // ── SHARPE: daily returns annualised ──
+  // ── SHARPE: intraday if available (5-min annualised), else daily ──
   const sharpe = (() => {
-    const navs = DAILY_CURVE.map(r => r.nav);
+    let navs, annFactor;
+    if (navIntraday.length > 50) {
+      navs = navIntraday.map(r => parseFloat(r.nav));
+      annFactor = Math.sqrt(105120); // 5-min intervals per year
+    } else {
+      navs = DAILY_CURVE.map(r => r.nav);
+      annFactor = Math.sqrt(365);
+    }
     if (navs.length < 5) return "—";
     const rets = navs.slice(1).map((v, i) => (v - navs[i]) / navs[i]);
     const mean = rets.reduce((a, b) => a + b, 0) / rets.length;
     const std  = Math.sqrt(rets.reduce((a, b) => a + (b - mean) ** 2, 0) / rets.length);
     if (std === 0) return "—";
-    return ((mean / std) * Math.sqrt(365)).toFixed(2);
+    return ((mean / std) * annFactor).toFixed(2);
   })();
 
-  // ── ALPHA & BETA ──
+  // ── ALPHA & BETA (daily) ──
   const { alpha, beta: betaVal } = (() => {
     if (DAILY_CURVE.length < 5) return { alpha: "—", beta: "—" };
     const navR = DAILY_CURVE.slice(1).map((d, i) => (d.nav - DAILY_CURVE[i].nav) / DAILY_CURVE[i].nav);
@@ -269,16 +280,10 @@ export default function App() {
     return { alpha: parseFloat(ann) >= 0 ? `+${ann}%` : `${ann}%`, beta: b.toFixed(2) };
   })();
 
-  // ── WIN RATE ──
-  const dailyRets = DAILY_CURVE.slice(1).map((d, i) => (d.nav - DAILY_CURVE[i].nav) / DAILY_CURVE[i].nav);
-  const winRate = dailyRets.length
-    ? ((dailyRets.filter(r => r > 0).length / dailyRets.length) * 100).toFixed(1) + "%"
-    : "—";
-
   // ── APY ──
   const apy = n > 1 ? (parseFloat(navReturn) / n * 365).toFixed(0) + "%" : "—";
 
-  // ── BTC MAX DRAWDOWN ──
+  // ── BTC MAX DRAWDOWN (daily) ──
   const btcMaxDD = (() => {
     const vals = rawSlice.map(d => d.btc).filter(Boolean);
     if (vals.length < 2) return "—";
@@ -359,7 +364,7 @@ export default function App() {
     : chartFilter === "Max" ? "All time"
     : `Last ${chartFilter}`;
 
-  // ── DATA FETCHING — only daily nav_history ──
+  // ── DATA FETCHING ──
   useEffect(() => {
     const fetchLive = async () => {
       try {
@@ -375,17 +380,28 @@ export default function App() {
         setNavHistory(d);
       } catch {}
     };
+    const fetchIntraday = async () => {
+      try {
+        // Fetch all intraday history for accurate MaxDD + Sharpe
+        const r = await fetch(`${BACKEND_URL}/api/nav-intraday?days=120`);
+        const d = await r.json();
+        setNavIntraday(d.filter(row => parseFloat(row.nav) > 0));
+      } catch {}
+    };
     const fetchTrades = async () => {
       try {
         const r = await fetch(`${BACKEND_URL}/api/closed-trades`);
         const d = await r.json();
+        // total + winRate from Bybit (by trade, not by day)
         if (d.total) setClosedTrades(d.total.toLocaleString());
+        if (d.winRate) setWinRate(d.winRate + "%");
       } catch {}
     };
-    fetchLive(); fetchNav(); fetchTrades();
+    fetchLive(); fetchNav(); fetchIntraday(); fetchTrades();
     const iv1 = setInterval(fetchLive, 60000);
     const iv2 = setInterval(fetchNav, 3600000);
-    return () => { clearInterval(iv1); clearInterval(iv2); };
+    const iv3 = setInterval(fetchIntraday, 300000);
+    return () => { clearInterval(iv1); clearInterval(iv2); clearInterval(iv3); };
   }, []);
 
   const chartPoints = filteredCurve.filter(d => d.btc !== null);
@@ -571,7 +587,8 @@ export default function App() {
             {v:betaVal, l:"Beta"},
             {v:alpha, l:"Alpha", pos:alpha!=="—"&&alpha[0]==="+"},
             {v:maxDDLabel, l:"Max Drawdown"},
-            {v:winRate, l:"Win Rate"},
+            // Win Rate from Bybit trades (not daily positive days)
+            {v:winRate||"—", l:"Win Rate (by trade)"},
             {v:closedTrades||"—", l:"Closed Trades"},
           ].map((s, i) => (
             <div className="stat-item" key={i}>
@@ -658,22 +675,27 @@ export default function App() {
           <h2 style={{fontFamily:"'Bricolage Grotesque',sans-serif",fontSize:"clamp(24px,3vw,36px)",fontWeight:700,letterSpacing:"-0.02em",color:"#1a0f0f",marginBottom:8,lineHeight:1.15}}>Start copying in 4 steps</h2>
           <p style={{fontSize:14,color:"#7a5060",marginBottom:36,lineHeight:1.6}}>No experience needed. Setup takes less than 5 minutes.</p>
           <div style={{display:"flex",flexDirection:"column",gap:24}}>
-            {[
-              {n:"01",bg:"#fdf8f8",bd:"#f0d8dc",title:"Create your Bybit account",body:"Go to Bybit and create a free account. Use our referral link to get exclusive benefits.",link:{href:BYBIT_LINK,label:"Create account on Bybit →"},note:"Bybit is a Tier-1 crypto exchange — regulated, secure, trusted by 50M+ users worldwide."},
-              {n:"02",bg:"#fdf8f8",bd:"#f0d8dc",title:"Deposit funds",body:"Fund your Bybit account via bank transfer (fiat) or crypto. Minimum to start copy trading is $200.",note:"You can deposit in USD, EUR, or any major cryptocurrency."},
-            ].map((step,i) => (
-              <div key={i} className="fade-up" style={{background:step.bg,border:`1.5px solid ${step.bd}`,borderRadius:16,padding:"24px"}}>
-                <div style={{display:"flex",gap:16,alignItems:"flex-start"}}>
-                  <div style={{minWidth:44,height:44,borderRadius:"50%",background:"linear-gradient(135deg,#c07a8a,#a05a8a)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:13,color:"#fff",flexShrink:0}}>{step.n}</div>
-                  <div>
-                    <div style={{fontFamily:"'Bricolage Grotesque',sans-serif",fontWeight:700,fontSize:15,color:"#1a0f0f",marginBottom:4}}>{step.title}</div>
-                    <div style={{fontSize:13,color:"#7a5060",lineHeight:1.65,marginBottom:8}}>{step.body}</div>
-                    {step.link && <a href={step.link.href} target="_blank" rel="noreferrer" style={{display:"inline-flex",alignItems:"center",gap:6,fontSize:12,fontWeight:600,color:"#c07a8a",textDecoration:"none",borderBottom:"1px solid rgba(192,122,138,0.3)",paddingBottom:1}}>{step.link.label}</a>}
-                    <div style={{fontSize:11,color:"#b09098",fontStyle:"italic",marginTop:6}}>{step.note}</div>
-                  </div>
+            <div className="fade-up" style={{background:"#fdf8f8",border:"1.5px solid #f0d8dc",borderRadius:16,padding:"24px"}}>
+              <div style={{display:"flex",gap:16,alignItems:"flex-start"}}>
+                <div style={{minWidth:44,height:44,borderRadius:"50%",background:"linear-gradient(135deg,#c07a8a,#a05a8a)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:13,color:"#fff",flexShrink:0}}>01</div>
+                <div>
+                  <div style={{fontFamily:"'Bricolage Grotesque',sans-serif",fontWeight:700,fontSize:15,color:"#1a0f0f",marginBottom:4}}>Create your Bybit account</div>
+                  <div style={{fontSize:13,color:"#7a5060",lineHeight:1.65,marginBottom:8}}>Go to Bybit and create a free account. Use our referral link to get exclusive benefits.</div>
+                  <a href={BYBIT_LINK} target="_blank" rel="noreferrer" style={{display:"inline-flex",alignItems:"center",gap:6,fontSize:12,fontWeight:600,color:"#c07a8a",textDecoration:"none",borderBottom:"1px solid rgba(192,122,138,0.3)",paddingBottom:1}}>Create account on Bybit →</a>
+                  <div style={{fontSize:11,color:"#b09098",fontStyle:"italic",marginTop:6}}>Bybit is a Tier-1 crypto exchange — regulated, secure, trusted by 50M+ users worldwide.</div>
                 </div>
               </div>
-            ))}
+            </div>
+            <div className="fade-up" style={{background:"#fdf8f8",border:"1.5px solid #f0d8dc",borderRadius:16,padding:"24px"}}>
+              <div style={{display:"flex",gap:16,alignItems:"flex-start"}}>
+                <div style={{minWidth:44,height:44,borderRadius:"50%",background:"linear-gradient(135deg,#c07a8a,#a05a8a)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:13,color:"#fff",flexShrink:0}}>02</div>
+                <div>
+                  <div style={{fontFamily:"'Bricolage Grotesque',sans-serif",fontWeight:700,fontSize:15,color:"#1a0f0f",marginBottom:4}}>Deposit funds</div>
+                  <div style={{fontSize:13,color:"#7a5060",lineHeight:1.65}}>Fund your Bybit account via bank transfer (fiat) or crypto. Minimum to start copy trading is $200.</div>
+                  <div style={{fontSize:11,color:"#b09098",fontStyle:"italic",marginTop:6}}>You can deposit in USD, EUR, or any major cryptocurrency.</div>
+                </div>
+              </div>
+            </div>
             <div className="fade-up" style={{background:"#fdf8f8",border:"1.5px solid #f0d8dc",borderRadius:16,padding:"24px"}}>
               <div style={{display:"flex",gap:16,alignItems:"flex-start"}}>
                 <div style={{minWidth:44,height:44,borderRadius:"50%",background:"linear-gradient(135deg,#c07a8a,#a05a8a)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:13,color:"#fff",flexShrink:0}}>03</div>
