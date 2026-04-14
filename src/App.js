@@ -514,7 +514,7 @@ export default function App() {
           <div className="btn-row fade-up d3">
             <a href={BYBIT_LINK} target="_blank" rel="noreferrer" className="btn-primary">Copy Trade →</a>
             <a href={TELEGRAM_LINK} target="_blank" rel="noreferrer" className="btn-outline">Join Channel</a>
-            <a href="https://gsigfkygshahbgbmejxl.supabase.co/storage/v1/object/public/factsheet/latest.html" target="_blank" rel="noreferrer" className="btn-outline">📊 Factsheet</a>
+            <a href="https://gsigfkygshahbgbmejxl.supabase.co/storage/v1/object/public/factsheet/latest.html" target="_blank" rel="noreferrer" className="btn-outline">Performance Report</a>
           </div>
         </div>
 
