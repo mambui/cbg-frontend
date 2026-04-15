@@ -863,7 +863,7 @@ export default function App() {
           <div style={{display:"flex",flexWrap:"wrap",justifyContent:"center",gap:16,maxWidth:1200,margin:"0 auto"}} className="fee-grid">
             {[
               { icon:"💰", title:"You keep 90%", desc:"of all profits generated in your account." },
-              { icon:"🤝", title:"10% performance fee", desc:"Only when you profit. If you don't win, we don't earn." },
+              { icon:"🤝", title:"10% performance fee", desc:"Only when you profit. If you don't win, we don't earn. See FAQ for practical examples." },
               { icon:"🚫", title:"No other fees", desc:"No management fee, no hidden charges, no subscriptions." },
               { icon:"🔒", title:"Full custody", desc:"Your funds stay in your Bybit account at all times. We never touch them." },
             ].map((item, i) => (
@@ -1004,6 +1004,10 @@ export default function App() {
               {
                 q:"How much does copy trading cost?",
                 a:"There are no additional fees to copy Elevano Capital beyond Bybit's standard trading spreads and transaction fees. You keep 90% of your profits — 10% is our performance fee. No management fee, no hidden charges. If you win, we win."
+              },
+              {
+                q:"How and when is the 10% performance fee charged?",
+                a:"The 10% fee is managed entirely by Bybit — you never send anything manually. Here's how it works: The mechanism: Bybit runs weekly settlement cycles from Saturday 00:00 UTC to Friday 23:59 UTC. Throughout the week, 10% of your daily gains are pre-deducted and held in reserve. Every Monday at 3AM UTC, Bybit settles: - If your net weekly P&L is positive → Elevano Capital receives 10% of the net profit - If your net weekly P&L is negative → all pre-deducted amounts are fully refunded to you. Elevano Capital receives $0. Example — gains then sudden loss: You start the week with $1,000: - Mon–Thu: gains accumulate to $1,500 → $50 pre-deducted by Bybit - Friday: market drops, account falls to $750 - Net result: -$250 for the week - Monday settlement: the $50 is fully refunded to you. Elevano Capital earns $0. Example — recovering from a loss: Next week starts at $750: - Account recovers to $1,000 by Friday (+$250 gain) - Net result: +$250 for the week - Monday settlement: Elevano Capital receives $25 (10% of $250) ⚠️ Each week is an independent cycle. There is no high water mark between weeks. If you lost money last week and recover this week, the fee applies to this week's net gain — regardless of your overall account history."
               },
               {
                 q:"What is the minimum amount to start?",
