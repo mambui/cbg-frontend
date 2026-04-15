@@ -270,9 +270,10 @@ const G = () => (
     @media(max-width:480px){.data-notice{padding:12px 14px;font-size:10px;}}
     .data-notice strong{color:#c07a8a;}
     
-    .footer{text-align:center;padding:20px 24px;font-size:10px;color:#c0a0a8;border-top:1px solid #f0d8dc;line-height:1.9;}
-    @media(max-width:480px){.footer{padding:16px;font-size:9px;line-height:1.7;}}
+    .footer{text-align:center;padding:40px 24px;font-size:10px;color:#c0a0a8;border-top:1px solid #f0d8dc;line-height:1.9;background:#fdfbfb;}
+    @media(max-width:480px){.footer{padding:32px 16px;font-size:9px;line-height:1.7;}}
     .footer a{color:#c07a8a;text-decoration:none;}
+    .footer strong{color:#8a6a70;font-weight:600;}
     
     /* ═══ FLOW DIAGRAM ═══ */
     .flow-arrow{display:block;}
@@ -1075,16 +1076,59 @@ export default function App() {
           <div className="data-notice">
             <strong>Data Protection (nDSG / Swiss FADP)</strong> — By submitting this form, you agree that your name, email, and company name will be used solely to respond to your inquiry. Your data is stored securely, never shared with third parties, and will be deleted upon request. Contact <a href={`mailto:${CONTACT_EMAIL}`} style={{color:"#c07a8a"}}>{CONTACT_EMAIL}</a> to exercise your rights under Swiss law.{" "}
             <span style={{cursor:"pointer",textDecoration:"underline",color:"#c07a8a"}} onClick={()=>setPrivacyOpen(!privacyOpen)}>{privacyOpen?"Hide":"Learn more"}</span>
-            {privacyOpen && <div style={{marginTop:8,paddingTop:8,borderTop:"1px solid #f0d8dc"}}>We process your data on the basis of your consent (Art. 6 nDSG). Data is stored on secure EU-region servers. No automated decision-making or profiling. Retention: 12 months from last contact.</div>}
+            {privacyOpen && <div style={{marginTop:8,paddingTop:8,borderTop:"1px solid #f0d8dc"}}>We process your data on the basis of your consent (Art. 6 nDSG). Data is stored on EU-region servers compliant with Swiss FADP and GDPR. No automated decision-making or profiling. Retention: 12 months from last contact. Documentary evidence of server compliance is maintained on file.</div>}
           </div>
         </div>
       </div>
 
       {/* FOOTER */}
       <div className="footer">
-        © {new Date().getFullYear()} Elevano Capital · <a href={TWITTER_LINK} target="_blank" rel="noreferrer">@elevano_capital</a> · <a href={TELEGRAM_LINK} target="_blank" rel="noreferrer">Telegram</a>
-        <br/>
-        For informational purposes only. Past performance is not indicative of future results. Trading crypto assets involves significant risk of loss.
+        <div style={{marginBottom:24}}>
+          © {new Date().getFullYear()} Elevano Capital · <a href={TWITTER_LINK} target="_blank" rel="noreferrer">@elevano_capital</a> · <a href={TELEGRAM_LINK} target="_blank" rel="noreferrer">Telegram</a>
+        </div>
+
+        <div style={{maxWidth:1100,margin:"0 auto",textAlign:"left",lineHeight:1.8}}>
+          <div style={{fontWeight:700,fontSize:11,marginBottom:16,textAlign:"center",color:"#8a6a70"}}>IMPORTANT RISK DISCLOSURE AND DISCLAIMERS</div>
+          
+          <div style={{marginBottom:14}}>
+            <strong>HIGH RISK INVESTMENT WARNING</strong><br/>
+            Trading cryptocurrencies, futures contracts, and leveraged instruments carries a high level of risk and may result in the loss of all your invested capital. Cryptocurrency markets are extremely volatile and can be affected by regulatory changes, market manipulation, and technological vulnerabilities. You should not invest money you cannot afford to lose.
+          </div>
+
+          <div style={{marginBottom:14}}>
+            <strong>PAST PERFORMANCE DISCLAIMER</strong><br/>
+            Past performance results shown on this website are historical and do not guarantee future returns. Simulated or hypothetical performance results have certain limitations and do not represent actual trading. No representation is being made that any account will or is likely to achieve profits or losses similar to those shown.
+          </div>
+
+          <div style={{marginBottom:14}}>
+            <strong>NO FINANCIAL ADVICE</strong><br/>
+            Elevano Capital does not provide personalized investment, legal, tax, or financial advice. The content on this website is for general informational and educational purposes only. You should conduct your own research and consult with qualified financial, legal, and tax advisors before making any investment decisions.
+          </div>
+
+          <div style={{marginBottom:14}}>
+            <strong>NO GUARANTEES</strong><br/>
+            There are no guarantees of profit. Markets can move against positions, and losses can exceed initial deposits when using leverage or derivatives. Elevano Capital makes no representations or warranties regarding the accuracy, reliability, or completeness of information provided on this website.
+          </div>
+
+          <div style={{marginBottom:14}}>
+            <strong>COPY TRADING RISKS</strong><br/>
+            Copy trading involves automatically replicating trades from another trader. Past success of a trader does not guarantee future performance. You are responsible for monitoring your account, understanding the risks, and ensuring adequate capitalization. Stop-loss mechanisms may not execute at desired levels during periods of extreme volatility or market gaps.
+          </div>
+
+          <div style={{marginBottom:14}}>
+            <strong>REGULATORY STATUS</strong><br/>
+            Elevano Capital is not a registered investment advisor, broker-dealer, or financial institution. We operate as a trading strategy on Bybit's Copy Trading platform. This website does not constitute an offer to sell or solicitation of an offer to buy any securities or financial instruments in any jurisdiction where such offer or solicitation would be unlawful.
+          </div>
+
+          <div style={{marginBottom:14}}>
+            <strong>JURISDICTION</strong><br/>
+            Services may not be available in all jurisdictions. It is your responsibility to ensure compliance with local laws and regulations. U.S. persons and residents of restricted jurisdictions may be prohibited from using these services.
+          </div>
+
+          <div style={{marginTop:20,paddingTop:14,borderTop:"1px solid #f0d8dc",fontSize:9,fontStyle:"italic",textAlign:"center"}}>
+            By accessing this website and using our services, you acknowledge that you have read, understood, and agree to these risk disclosures and disclaimers.
+          </div>
+        </div>
       </div>
     </>
   );
