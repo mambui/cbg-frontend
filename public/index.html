@@ -4,38 +4,33 @@
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#c07a8a" />
- 
-    <!-- SEO -->
-    <title>Elevano Capital — Crypto Hedge Fund</title>
-    <meta name="description" content="Fully automated, outperforming Bitcoin on a risk-adjusted basis. Copy trade on Bybit." />
-    <meta name="keywords" content="crypto hedge fund, copy trading, bybit, algorithmic trading, elevano capital" />
-    <meta name="author" content="Elevano Capital" />
-    <link rel="canonical" href="https://elevanocapital.com" />
- 
-    <!-- Open Graph (Facebook, LinkedIn, Telegram) -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://elevanocapital.com" />
-    <meta property="og:title" content="Elevano Capital — Crypto Hedge Fund" />
-    <meta property="og:description" content="Fully automated, outperforming Bitcoin on a risk-adjusted basis. Copy trade on Bybit." />
-    <meta property="og:image" content="https://elevanocapital.com/og-image.png" />
- 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@elevano_capital" />
-    <meta name="twitter:title" content="Elevano Capital — Crypto Hedge Fund" />
-    <meta name="twitter:description" content="Fully automated, outperforming Bitcoin on a risk-adjusted basis. Copy trade on Bybit." />
-    <meta name="twitter:image" content="https://elevanocapital.com/og-image.png" />
- 
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/og-image.png" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Elevano Capital - Systematic crypto trading strategy"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!-- Google Analytics 4 -->
+    <title>Elevano Capital</title>
+
+    <!-- Google Analytics 4 with Consent Mode -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-1Q16XYWWQS"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
+      
+      gtag('consent', 'default', {
+        'analytics_storage': 'denied',
+        'ad_storage': 'denied',
+        'wait_for_update': 500
+      });
+      
       gtag('js', new Date());
-      gtag('config', 'G-1Q16XYWWQS');
+      gtag('config', 'G-1Q16XYWWQS', {
+        'anonymize_ip': true,
+        'allow_google_signals': false,
+        'allow_ad_personalization_signals': false
+      });
     </script>
   </head>
   <body>

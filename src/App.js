@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import CookieConsent from "react-cookie-consent";
 
 const BACKEND_URL = 'https://cbg-backend-production-fdd7.up.railway.app';
 const BYBIT_LINK = 'https://www.bybit.com/invite?ref=48DYXE';
@@ -1125,11 +1126,71 @@ export default function App() {
             Services may not be available in all jurisdictions. It is your responsibility to ensure compliance with local laws and regulations. U.S. persons and residents of restricted jurisdictions may be prohibited from using these services.
           </div>
 
+          <div style={{marginBottom:14}}>
+            <strong>COOKIES & THIRD-PARTY ANALYTICS</strong><br/>
+            This website uses Google Analytics, a web analytics service provided by Google LLC. Google Analytics uses cookies and transfers personal data (including IP addresses) to servers in the United States. The USA does not provide an adequate level of data protection under Swiss FADP and EU GDPR. Google Analytics is only activated with your explicit consent via the cookie banner. You can withdraw your consent at any time by clearing your browser cookies or adjusting your cookie preferences.
+          </div>
+
           <div style={{marginTop:20,paddingTop:14,borderTop:"1px solid #f0d8dc",fontSize:9,fontStyle:"italic",textAlign:"center"}}>
             By accessing this website and using our services, you acknowledge that you have read, understood, and agree to these risk disclosures and disclaimers.
           </div>
         </div>
       </div>
+
+      {/* Cookie Consent Banner */}
+      <CookieConsent
+        location="bottom"
+        buttonText="Accept"
+        declineButtonText="Decline"
+        enableDeclineButton
+        onAccept={() => {
+          // Load Google Analytics only after explicit consent
+          if (typeof window !== 'undefined' && window.gtag) {
+            window.gtag('consent', 'update', {
+              'analytics_storage': 'granted'
+            });
+          }
+        }}
+        onDecline={() => {
+          // Ensure GA remains blocked
+          if (typeof window !== 'undefined' && window.gtag) {
+            window.gtag('consent', 'update', {
+              'analytics_storage': 'denied'
+            });
+          }
+        }}
+        style={{
+          background: "#1a0f0f",
+          padding: "16px 24px",
+          alignItems: "center",
+          fontFamily: "Inter, sans-serif",
+          fontSize: "12px",
+          lineHeight: "1.6"
+        }}
+        buttonStyle={{
+          background: "linear-gradient(135deg, #c07a8a, #a05a8a)",
+          color: "#fff",
+          fontSize: "13px",
+          fontWeight: "600",
+          borderRadius: "8px",
+          padding: "10px 24px",
+          border: "none",
+          cursor: "pointer"
+        }}
+        declineButtonStyle={{
+          background: "transparent",
+          color: "#fff",
+          fontSize: "13px",
+          fontWeight: "600",
+          borderRadius: "8px",
+          padding: "10px 24px",
+          border: "1.5px solid #c07a8a",
+          cursor: "pointer"
+        }}
+        expires={365}
+      >
+        This website uses Google Analytics, which transfers personal data (including IP addresses) to servers in the United States. The USA does not provide an adequate level of data protection under Swiss FADP and EU GDPR. By clicking "Accept", you consent to this data transfer.
+      </CookieConsent>
     </>
   );
 }
