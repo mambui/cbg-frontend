@@ -7,7 +7,7 @@ const BYBIT_LINK = 'https://www.bybit.com/invite?ref=48DYXE';
 const BYBIT_COPY_PROFILE = 'https://www.bybit.com/copyTrade/trade-center/detail?leaderMark=gOerGIfY7IJ5keZeX0RfBg%3D%3D&copyFrom=Search&profileDay=90';
 const TWITTER_LINK = 'https://x.com/elevano_capital';
 const TELEGRAM_LINK = 'https://t.me/elevano_capital';
-const CONTACT_EMAIL = 'elevanocapital@gmail.com';
+const CONTACT_EMAIL = 'info@elevanocapital.com';
 
 /* ── BTC benchmark data (static) ── */
 const BTC_DATA = {
