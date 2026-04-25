@@ -400,21 +400,30 @@ export default function App() {
   }
   const maxDDLabel = (maxDD * 100).toFixed(1) + "%";
 
-  // Daily returns for Sharpe + win rate
+  // Daily returns from rawSlice (for win rate only - filter-dependent)
   const dailyRets = rawSlice.slice(1).map((d, i) =>
     (d.nav - rawSlice[i].nav) / rawSlice[i].nav
   );
-  const meanRet = dailyRets.length ? dailyRets.reduce((a,b)=>a+b,0)/dailyRets.length : 0;
-  const stdRet = dailyRets.length > 1
-    ? Math.sqrt(dailyRets.reduce((a,b)=>a+(b-meanRet)**2,0)/dailyRets.length)
-    : 0;
-  const sharpe = stdRet > 0 ? ((meanRet / stdRet) * Math.sqrt(365)).toFixed(2) : "—";
 
-  // Alpha & Beta vs BTC
+  // ── FROZEN METRICS — always computed on full CURVE (YTD), independent of filter ──
+  const sharpe = (() => {
+    if (CURVE.length < 2) return "—";
+    const rets = CURVE.slice(1).map((d, i) => (d.nav - CURVE[i].nav) / CURVE[i].nav);
+    const mean = rets.reduce((a,b)=>a+b,0)/rets.length;
+    const std = Math.sqrt(rets.reduce((a,b)=>a+(b-mean)**2,0)/rets.length);
+    return std > 0 ? ((mean / std) * Math.sqrt(365)).toFixed(2) : "—";
+  })();
+
+  const apy = (() => {
+    if (CURVE.length < 2) return "—";
+    const ytdReturn = ((CURVE[CURVE.length-1].nav - CURVE[0].nav) / CURVE[0].nav) * 100;
+    return (ytdReturn / CURVE.length * 365).toFixed(0) + "%";
+  })();
+
   const { alpha, beta: betaVal } = (() => {
-    if (rawSlice.length < 5) return { alpha: "—", beta: "—" };
-    const navR = rawSlice.slice(1).map((d,i) => (d.nav - rawSlice[i].nav) / rawSlice[i].nav);
-    const btcR = rawSlice.slice(1).map((d,i) => d.btc && rawSlice[i].btc ? (d.btc - rawSlice[i].btc) / rawSlice[i].btc : null).filter(v => v !== null);
+    if (CURVE.length < 5) return { alpha: "—", beta: "—" };
+    const navR = CURVE.slice(1).map((d,i) => (d.nav - CURVE[i].nav) / CURVE[i].nav);
+    const btcR = CURVE.slice(1).map((d,i) => d.btc && CURVE[i].btc ? (d.btc - CURVE[i].btc) / CURVE[i].btc : null).filter(v => v !== null);
     const n = Math.min(navR.length, btcR.length);
     if (n < 2) return { alpha: "—", beta: "—" };
     const meanNav = navR.slice(0,n).reduce((a,b)=>a+b,0)/n;
@@ -428,13 +437,9 @@ export default function App() {
     return { alpha: parseFloat(annAlpha) >= 0 ? `+${annAlpha}%` : `${annAlpha}%`, beta: b.toFixed(2) };
   })();
 
-  // Win rate
+  // Win rate (filter-dependent, based on rawSlice)
   const winDays = dailyRets.filter(r => r > 0).length;
   const winRate = dailyRets.length ? ((winDays / dailyRets.length) * 100).toFixed(1) + "%" : "—";
-
-  // APY = (return% / number of days) * 365
-  const apyVal = n > 1 ? (parseFloat(navReturn) / n * 365) : 0;
-  const apy = n > 1 ? apyVal.toFixed(0) + "%" : "—";
 
   // Dynamic monthly returns from navHistory — last day of prev month as base
   const monthlyPills = (() => {
