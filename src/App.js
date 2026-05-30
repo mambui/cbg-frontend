@@ -3,7 +3,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import CookieConsent from "react-cookie-consent";
 
 const BACKEND_URL = 'https://cbg-backend-production-fdd7.up.railway.app';
-const BYBIT_LINK = 'https://www.bybit.com/invite?ref=48DYXE';
+const BYBIT_LINK = 'https://partner.bybit.com/b/ELEVANO';
 const BYBIT_COPY_PROFILE = 'https://www.bybit.com/copyTrade/trade-center/detail?leaderMark=gOerGIfY7IJ5keZeX0RfBg%3D%3D&copyFrom=Search&profileDay=90';
 const TWITTER_LINK = 'https://x.com/elevano_capital';
 const TELEGRAM_LINK = 'https://t.me/elevano_capital';
