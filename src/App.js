@@ -334,7 +334,7 @@ export default function App() {
   const [navHistory, setNavHistory] = useState([]);
   const [closedTrades, setClosedTrades] = useState(null);
   const [apiWinRate, setApiWinRate] = useState(null);
-  const [chartFilter, setChartFilter] = useState("YTD");
+  const [chartFilter, setChartFilter] = useState("Max"); // MAX-DEFAULT-V1
 
   // Build CURVE from live Supabase data
   const CURVE = (() => {
