@@ -294,7 +294,7 @@ const ChartTip = ({ active, payload, label }) => {
       <div style={{color:"#b09098",marginBottom:6,fontWeight:600}}>{label}</div>
       {payload.map((p,i) => (
         <div key={i} style={{display:"flex",justifyContent:"space-between",gap:16,marginBottom:3}}>
-          <span style={{color:p.color,fontWeight:600}}>{p.dataKey==="bt"?"Leader backtest":p.dataKey==="btc"?"Bitcoin":"Elevano Capital"}</span>
+          <span style={{color:p.color,fontWeight:600}}>{p.dataKey==="bt"?"Backtest":p.dataKey==="btc"?"Bitcoin":"Live"}</span>
           <span style={{color:"#1a0f0f",fontWeight:700}}>${Number(p.value).toFixed(2)}</span>
         </div>
       ))}
@@ -335,7 +335,7 @@ export default function App() {
   const [closedTrades, setClosedTrades] = useState(null);
   const [apiWinRate, setApiWinRate] = useState(null);
   const [chartFilter, setChartFilter] = useState("Max"); // MAX-DEFAULT-V1
-  const [backtest, setBacktest] = useState(null); // BACKTEST-TAB-V1: leader history from /api/backtest
+  const [backtest, setBacktest] = useState(null); // BACKTEST-TAB-V1: strategy backtest from /api/backtest
 
   // Build CURVE from live Supabase data
   const CURVE = (() => {
@@ -353,8 +353,8 @@ export default function App() {
     }).filter(d => d.btc !== null);
   })();
 
-  // ── BACKTEST tab: leader wallet history (dashed) chained with the live NAV (solid) ──
-  // /api/backtest returns the leader index rebased to 1000, ending on the first live
+  // ── BACKTEST tab: strategy backtest (dashed) chained with the live NAV (solid) ──
+  // /api/backtest returns the backtest index rebased to 1000, ending on the first live
   // date (junction). Sparse points are densified to daily here, and the live NAV is
   // rescaled so it continues from the junction value.
   const BT_CURVE = (() => {
@@ -736,8 +736,8 @@ export default function App() {
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6,flexWrap:"wrap",gap:8}}>
               <div className="chart-legend" style={{margin:0}}>
                 {isBacktest ? (<>
-                  <div className="legend-item"><div className="legend-dot" style={{background:"transparent",border:"1.5px dashed #c07a8a"}}/>Leader 0x2312… (backtest)</div>
-                  <div className="legend-item"><div className="legend-dot" style={{background:"#c07a8a"}}/>Elevano Capital (live)</div>
+                  <div className="legend-item"><div className="legend-dot" style={{background:"transparent",border:"1.5px dashed #c07a8a"}}/>Backtest</div>
+                  <div className="legend-item"><div className="legend-dot" style={{background:"#c07a8a"}}/>Live</div>
                 </>) : (<>
                 <div className="legend-item"><div className="legend-dot" style={{background:"#c07a8a"}}/>Return Since Inception</div>
                 <div className="legend-item"><div className="legend-dot" style={{background:"#f7931a",opacity:0.7}}/>Bitcoin (BTC)</div>
@@ -794,7 +794,7 @@ export default function App() {
             </ResponsiveContainer>
 
             <div className="chart-caption">{isBacktest
-              ? `$1,000 invested in the strategy since ${btStartLabel} — leader backtest (dashed) until Jan 2026, Elevano live (solid) since`
+              ? `$1,000 invested in Elevano Capital since ${btStartLabel} — backtest (dashed) until Jan 2026, live (solid) since`
               : "$1,000 invested in Elevano Capital — since Jan 2026"}</div>
 
             <div className="perf-footer">
