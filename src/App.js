@@ -393,31 +393,30 @@ export default function App() {
     }
     return rows;
   })();
-  // Monthly returns on the Backtest tab, for the strategy and for BTC. Labels carry
-  // the year ("Aug 23") since the series spans several years; backtest months are
-  // flagged so the pills can be drawn dashed like the curve.
-  const monthlyFromCurve = (rows, key) => {
-    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-    const byMonth = {};
+  // Yearly returns on the Backtest tab, for the strategy and for BTC (the series
+  // spans several years, so monthly pills would be too long). A year is measured
+  // from the last value of the previous year to its own last value; the first year
+  // starts at its first value. Years entirely in the backtest get a dashed pill.
+  const yearlyFromCurve = (rows, key) => {
+    const byYear = {};
     for (const r of rows) {
       if (r[key] === null || r[key] === undefined) continue;
-      const k = r.iso.slice(0, 7);
-      if (!byMonth[k]) byMonth[k] = [];
-      byMonth[k].push(r);
+      const y = r.iso.slice(0, 4);
+      if (!byYear[y]) byYear[y] = [];
+      byYear[y].push(r);
     }
-    const keys = Object.keys(byMonth).sort();
-    return keys.map((k, i) => {
-      const cur = byMonth[k];
-      const start = i === 0 ? cur[0][key] : byMonth[keys[i - 1]].slice(-1)[0][key];
+    const years = Object.keys(byYear).sort();
+    return years.map((y, i) => {
+      const cur = byYear[y];
+      const start = i === 0 ? cur[0][key] : byYear[years[i - 1]].slice(-1)[0][key];
       const end = cur[cur.length - 1][key];
       const ret = ((end - start) / start * 100).toFixed(2);
       const pos = parseFloat(ret) >= 0;
-      const label = `${months[parseInt(k.slice(5, 7), 10) - 1]} ${k.slice(2, 4)}`;
-      return { label: `${label} ${pos ? "+" : ""}${ret}%`, pos, bt: cur[cur.length - 1].phase === "backtest" };
+      return { label: `${y} ${pos ? "+" : ""}${ret}%`, pos, bt: cur[cur.length - 1].phase === "backtest" };
     });
   };
-  const btNavPills = BT_CURVE.length ? monthlyFromCurve(BT_CURVE, "nav") : [];
-  const btBtcPills = BT_CURVE.length ? monthlyFromCurve(BT_CURVE, "btc") : [];
+  const btNavPills = BT_CURVE.length ? yearlyFromCurve(BT_CURVE, "nav") : [];
+  const btBtcPills = BT_CURVE.length ? yearlyFromCurve(BT_CURVE, "btc") : [];
   const btJunctionLabel = BT_CURVE.find(r => r.phase === "junction")?.date;
   const btTicks = (() => {
     const seen = new Set(); const ticks = [];
