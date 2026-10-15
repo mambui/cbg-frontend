@@ -380,8 +380,44 @@ export default function App() {
       const v = parseFloat((junction.nav * parseFloat(r.nav) / base).toFixed(2));
       rows.push({ iso: r.date, date: label(Date.parse(r.date)), nav: v, bt: i === 0 ? v : null, liveNav: v, btc: null, phase: i === 0 ? "junction" : "live" });
     });
+    // BTC benchmark rebased to 1000 at the backtest start: backend prices for the
+    // backtest period, nav_history btc_price for the live period, forward-filled.
+    const price = {};
+    for (const b of backtest.btc || []) price[b.date] = parseFloat(b.price);
+    for (const r of navHistory) if (r.btc_price) price[r.date] = parseFloat(r.btc_price);
+    let btcBase = null, last = null;
+    for (const row of rows) {
+      if (price[row.iso]) last = price[row.iso];
+      if (last && btcBase === null) btcBase = last;
+      row.btc = last && btcBase ? parseFloat((last / btcBase * 1000).toFixed(2)) : null;
+    }
     return rows;
   })();
+  // Monthly returns on the Backtest tab, for the strategy and for BTC. Labels carry
+  // the year ("Aug 23") since the series spans several years; backtest months are
+  // flagged so the pills can be drawn dashed like the curve.
+  const monthlyFromCurve = (rows, key) => {
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const byMonth = {};
+    for (const r of rows) {
+      if (r[key] === null || r[key] === undefined) continue;
+      const k = r.iso.slice(0, 7);
+      if (!byMonth[k]) byMonth[k] = [];
+      byMonth[k].push(r);
+    }
+    const keys = Object.keys(byMonth).sort();
+    return keys.map((k, i) => {
+      const cur = byMonth[k];
+      const start = i === 0 ? cur[0][key] : byMonth[keys[i - 1]].slice(-1)[0][key];
+      const end = cur[cur.length - 1][key];
+      const ret = ((end - start) / start * 100).toFixed(2);
+      const pos = parseFloat(ret) >= 0;
+      const label = `${months[parseInt(k.slice(5, 7), 10) - 1]} ${k.slice(2, 4)}`;
+      return { label: `${label} ${pos ? "+" : ""}${ret}%`, pos, bt: cur[cur.length - 1].phase === "backtest" };
+    });
+  };
+  const btNavPills = BT_CURVE.length ? monthlyFromCurve(BT_CURVE, "nav") : [];
+  const btBtcPills = BT_CURVE.length ? monthlyFromCurve(BT_CURVE, "btc") : [];
   const btJunctionLabel = BT_CURVE.find(r => r.phase === "junction")?.date;
   const btTicks = (() => {
     const seen = new Set(); const ticks = [];
@@ -717,7 +753,7 @@ export default function App() {
                 <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>{periodLabel} · net of fees</div>
               </div>
               <div>
-                <div className={`pstat-val ${isBacktest?"":parseFloat(btcReturn)>=0?"pos":"neg"}`}>{isBacktest ? "—" : btcReturnLabel}</div>
+                <div className={`pstat-val ${parseFloat(btcReturn)>=0?"pos":"neg"}`}>{btcReturnLabel}</div>
                 <div className={`pstat-label ${parseFloat(btcReturn)>=0?"":"neg"}`}>Bitcoin</div>
                 <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Same period</div>
               </div>
@@ -738,6 +774,7 @@ export default function App() {
                 {isBacktest ? (<>
                   <div className="legend-item"><div className="legend-dot" style={{background:"transparent",border:"1.5px dashed #c07a8a"}}/>Backtest</div>
                   <div className="legend-item"><div className="legend-dot" style={{background:"#c07a8a"}}/>Live</div>
+                  <div className="legend-item"><div className="legend-dot" style={{background:"#f7931a",opacity:0.7}}/>Bitcoin (BTC)</div>
                 </>) : (<>
                 <div className="legend-item"><div className="legend-dot" style={{background:"#c07a8a"}}/>Return Since Inception</div>
                 <div className="legend-item"><div className="legend-dot" style={{background:"#f7931a",opacity:0.7}}/>Bitcoin (BTC)</div>
@@ -776,6 +813,9 @@ export default function App() {
                 {isBacktest ? (<>
                   {btJunctionLabel && <ReferenceLine x={btJunctionLabel} stroke="#b09098" strokeDasharray="4 3"
                     label={{value:"Live",position:"insideTopRight",fill:"#b09098",fontSize:9,fontFamily:"Inter,sans-serif"}}/>}
+                  <Area type="monotone" dataKey="btc" stroke="#f7931a" strokeWidth={1.5}
+                    fill="url(#gBtc)" dot={false} strokeDasharray="4 2" connectNulls
+                    activeDot={{r:3,fill:"#f7931a",strokeWidth:0}}/>
                   <Area type="monotone" dataKey="bt" stroke="#c07a8a" strokeWidth={1.8} strokeDasharray="5 3"
                     fill="url(#gNav)" dot={false} connectNulls={false}
                     activeDot={{r:3,fill:"#c07a8a",strokeWidth:0}}/>
@@ -794,7 +834,7 @@ export default function App() {
             </ResponsiveContainer>
 
             <div className="chart-caption">{isBacktest
-              ? `$1,000 invested in Elevano Capital since ${btStartLabel} — backtest (dashed) until Jan 2026, live (solid) since`
+              ? `$1,000 invested in Elevano Capital since ${btStartLabel} — backtest (dashed) until Jan 2026, live (solid) since · BTC over the same period`
               : "$1,000 invested in Elevano Capital — since Jan 2026"}</div>
 
             <div className="perf-footer">
@@ -807,24 +847,22 @@ export default function App() {
                 {" · "}Max drawdown <strong style={{color:"#1a0f0f"}}>{maxDDLabel}</strong>
               </div>
               <div className="monthly-pills" style={{marginBottom:10}}>
-                {monthlyPills.map((p,i) => (
-                  <span key={i} className="m-pill" style={{color: p.pos ? "#1a9e6e" : "#e05050"}}>{p.label}</span>
+                {(isBacktest ? btNavPills : monthlyPills).map((p,i) => (
+                  <span key={i} className="m-pill" style={{color: p.pos ? "#1a9e6e" : "#e05050", borderStyle: p.bt ? "dashed" : "solid"}}>{p.label}</span>
                 ))}
               </div>
 
               {/* BTC row */}
-              {!isBacktest && (<>
               <div style={{marginBottom:6}}>
                 <strong style={{color:"#1a0f0f"}}>BTC:</strong>
                 {" "}<strong style={{color: parseFloat(btcReturn)>=0 ? "#1a9e6e" : "#e05050"}}>{btcReturnLabel}</strong>
                 {" · "}Max drawdown <strong style={{color:"#1a0f0f"}}>{btcMaxDD}</strong>
               </div>
               <div className="monthly-pills">
-                {btcMonthlyPills.map((p,i) => (
-                  <span key={i} className="m-pill" style={{color: p.pos ? "#1a9e6e" : "#e05050"}}>{p.label}</span>
+                {(isBacktest ? btBtcPills : btcMonthlyPills).map((p,i) => (
+                  <span key={i} className="m-pill" style={{color: p.pos ? "#1a9e6e" : "#e05050", borderStyle: p.bt ? "dashed" : "solid"}}>{p.label}</span>
                 ))}
               </div>
-              </>)}
             </div>
           </div>
         </div>
@@ -835,7 +873,7 @@ export default function App() {
         <div className="stats-inner">
           {[
             {v:navReturnLabel, l:`Elevano · ${periodLabel}`, pos:parseFloat(navReturn)>=0, neg:parseFloat(navReturn)<0},
-            {v:isBacktest ? "—" : btcReturnLabel, l:`BTC · ${periodLabel}`, pos:!isBacktest && parseFloat(btcReturn)>=0, neg:!isBacktest && parseFloat(btcReturn)<0},
+            {v:btcReturnLabel, l:`BTC · ${periodLabel}`, pos:parseFloat(btcReturn)>=0, neg:parseFloat(btcReturn)<0},
             {v:trackRecord, l:"Track Record"},
             {v:alpha, l:"Alpha (ann.)", pos:true},
             {v:betaVal, l:"Beta vs BTC"},
