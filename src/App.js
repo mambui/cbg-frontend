@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, ReferenceLine } from "recharts";
 import CookieConsent from "react-cookie-consent";
 
 const BACKEND_URL = 'https://cbg-backend-production-fdd7.up.railway.app';
@@ -294,7 +294,7 @@ const ChartTip = ({ active, payload, label }) => {
       <div style={{color:"#b09098",marginBottom:6,fontWeight:600}}>{label}</div>
       {payload.map((p,i) => (
         <div key={i} style={{display:"flex",justifyContent:"space-between",gap:16,marginBottom:3}}>
-          <span style={{color:p.color,fontWeight:600}}>{p.dataKey==="nav"?"Elevano Capital":"Bitcoin"}</span>
+          <span style={{color:p.color,fontWeight:600}}>{p.dataKey==="bt"?"Leader backtest":p.dataKey==="btc"?"Bitcoin":"Elevano Capital"}</span>
           <span style={{color:"#1a0f0f",fontWeight:700}}>${Number(p.value).toFixed(2)}</span>
         </div>
       ))}
@@ -335,6 +335,7 @@ export default function App() {
   const [closedTrades, setClosedTrades] = useState(null);
   const [apiWinRate, setApiWinRate] = useState(null);
   const [chartFilter, setChartFilter] = useState("Max"); // MAX-DEFAULT-V1
+  const [backtest, setBacktest] = useState(null); // BACKTEST-TAB-V1: leader history from /api/backtest
 
   // Build CURVE from live Supabase data
   const CURVE = (() => {
@@ -352,6 +353,44 @@ export default function App() {
     }).filter(d => d.btc !== null);
   })();
 
+  // ── BACKTEST tab: leader wallet history (dashed) chained with the live NAV (solid) ──
+  // /api/backtest returns the leader index rebased to 1000, ending on the first live
+  // date (junction). Sparse points are densified to daily here, and the live NAV is
+  // rescaled so it continues from the junction value.
+  const BT_CURVE = (() => {
+    if (!backtest?.points?.length || !navHistory.length) return [];
+    const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const label = (t) => { const d = new Date(t); return `${months[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`; };
+    const DAY = 86400000;
+    const pts = backtest.points;
+    const rows = [];
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i], b = pts[i + 1];
+      const ta = Date.parse(a.date), tb = Date.parse(b.date);
+      if (!(tb > ta)) continue;
+      for (let t = ta; t < tb; t += DAY) {
+        const v = parseFloat((a.nav + (b.nav - a.nav) * ((t - ta) / (tb - ta))).toFixed(2));
+        rows.push({ iso: new Date(t).toISOString().slice(0, 10), date: label(t), nav: v, bt: v, liveNav: null, btc: null, phase: "backtest" });
+      }
+    }
+    const junction = pts[pts.length - 1];
+    const liveRows = navHistory.filter(r => r.date >= junction.date).sort((a, b) => a.date.localeCompare(b.date));
+    const base = parseFloat(liveRows[0]?.nav) || 1000;
+    liveRows.forEach((r, i) => {
+      const v = parseFloat((junction.nav * parseFloat(r.nav) / base).toFixed(2));
+      rows.push({ iso: r.date, date: label(Date.parse(r.date)), nav: v, bt: i === 0 ? v : null, liveNav: v, btc: null, phase: i === 0 ? "junction" : "live" });
+    });
+    return rows;
+  })();
+  const btJunctionLabel = BT_CURVE.find(r => r.phase === "junction")?.date;
+  const btTicks = (() => {
+    const seen = new Set(); const ticks = [];
+    for (const r of BT_CURVE) { const y = r.iso.slice(0, 4); if (!seen.has(y)) { seen.add(y); ticks.push(r.date); } }
+    return ticks;
+  })();
+  const btStartLabel = BT_CURVE[0] ? BT_CURVE[0].date.replace(/^(\w+) \d+, /, "$1 ") : "";
+  const isBacktest = chartFilter === "Backtest";
+
   // Dynamic track record — months from first date to today
   const trackRecord = (() => {
     const start = new Date('2026-01-01');
@@ -360,9 +399,10 @@ export default function App() {
     return months <= 1 ? "1 month" : `${months} months`;
   })();
 
-  const FILTERS = ["5D","1M","6M","YTD","1Y","Max"];
+  const FILTERS = ["5D","1M","6M","YTD","1Y","Max","Backtest"];
 
   const getRawSlice = () => {
+    if (chartFilter === "Backtest") return BT_CURVE;
     if (chartFilter === "5D") return CURVE.slice(-5);
     if (chartFilter === "1M") return CURVE.slice(-30);
     if (chartFilter === "6M") return CURVE.slice(-180);
@@ -373,7 +413,7 @@ export default function App() {
   const rawSlice = getRawSlice();
   const navBase = rawSlice[0]?.nav || 1000;
   const btcBase = rawSlice[0]?.btc || 1000;
-  const filteredCurve = rawSlice.map(d => ({
+  const filteredCurve = isBacktest ? rawSlice : rawSlice.map(d => ({
     ...d,
     nav: parseFloat((d.nav / navBase * 1000).toFixed(2)),
     btc: parseFloat((d.btc / btcBase * 1000).toFixed(2)),
@@ -541,7 +581,7 @@ export default function App() {
     return results;
   })();
 
-  const periodLabel = chartFilter === "YTD" ? "Since Jan 2026" : chartFilter === "Max" ? "All time" : `Last ${chartFilter}`;
+  const periodLabel = chartFilter === "YTD" ? "Since Jan 2026" : chartFilter === "Max" ? "All time" : chartFilter === "Backtest" ? "Backtest + live" : `Last ${chartFilter}`;
 
   useEffect(() => {
     const fetch_ = async () => {
@@ -558,6 +598,13 @@ export default function App() {
         setNavHistory(data);
       } catch {}
     };
+    const fetchBacktest = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/backtest`);
+        const data = await res.json();
+        if (data?.points?.length) setBacktest(data);
+      } catch {}
+    };
     const fetchClosedTrades = async () => {
       try {
         const res = await fetch(`${BACKEND_URL}/api/closed-trades`);
@@ -566,15 +613,15 @@ export default function App() {
         if (data.winRate) setApiWinRate(data.winRate + "%");
       } catch {}
     };
-    fetch_(); fetchNav(); fetchClosedTrades();
+    fetch_(); fetchNav(); fetchClosedTrades(); fetchBacktest();
     const iv = setInterval(fetch_, 60000);
     const ivNav = setInterval(fetchNav, 3600000);
     return () => { clearInterval(iv); clearInterval(ivNav); };
   }, []);
 
   const live = extractLive(liveData);
-  const minVal = Math.min(...filteredCurve.map(d => Math.min(d.nav, d.btc)));
-  const maxVal = Math.max(...filteredCurve.map(d => Math.max(d.nav, d.btc)));
+  const minVal = Math.min(...filteredCurve.map(d => Math.min(d.nav, d.btc ?? d.nav)));
+  const maxVal = Math.max(...filteredCurve.map(d => Math.max(d.nav, d.btc ?? d.nav)));
 
   const [sending, setSending] = useState(false);
 
@@ -670,7 +717,7 @@ export default function App() {
                 <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>{periodLabel} · net of fees</div>
               </div>
               <div>
-                <div className={`pstat-val ${parseFloat(btcReturn)>=0?"pos":"neg"}`}>{btcReturnLabel}</div>
+                <div className={`pstat-val ${isBacktest?"":parseFloat(btcReturn)>=0?"pos":"neg"}`}>{isBacktest ? "—" : btcReturnLabel}</div>
                 <div className={`pstat-label ${parseFloat(btcReturn)>=0?"":"neg"}`}>Bitcoin</div>
                 <div style={{fontSize:9,color:"#c0a0a8",marginTop:1}}>Same period</div>
               </div>
@@ -688,8 +735,13 @@ export default function App() {
 
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6,flexWrap:"wrap",gap:8}}>
               <div className="chart-legend" style={{margin:0}}>
+                {isBacktest ? (<>
+                  <div className="legend-item"><div className="legend-dot" style={{background:"transparent",border:"1.5px dashed #c07a8a"}}/>Leader 0x2312… (backtest)</div>
+                  <div className="legend-item"><div className="legend-dot" style={{background:"#c07a8a"}}/>Elevano Capital (live)</div>
+                </>) : (<>
                 <div className="legend-item"><div className="legend-dot" style={{background:"#c07a8a"}}/>Return Since Inception</div>
                 <div className="legend-item"><div className="legend-dot" style={{background:"#f7931a",opacity:0.7}}/>Bitcoin (BTC)</div>
+                </>)}
               </div>
               <div style={{display:"flex",gap:3,flexWrap:"wrap"}}>
                 {FILTERS.map(f => (
@@ -718,19 +770,32 @@ export default function App() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f8eef0" vertical={false}/>
                 <XAxis dataKey="date" tick={{fill:"#d0b0b8",fontSize:9,fontFamily:"Inter,sans-serif"}}
-                  axisLine={false} tickLine={false} ticks={["Jan 1","Feb 1","Mar 1","Mar 31"]}/>
+                  axisLine={false} tickLine={false} ticks={isBacktest ? btTicks : ["Jan 1","Feb 1","Mar 1","Mar 31"]}/>
                 <YAxis domain={[minVal*0.93, maxVal*1.02]} hide/>
                 <Tooltip content={<ChartTip/>}/>
+                {isBacktest ? (<>
+                  {btJunctionLabel && <ReferenceLine x={btJunctionLabel} stroke="#b09098" strokeDasharray="4 3"
+                    label={{value:"Live",position:"insideTopRight",fill:"#b09098",fontSize:9,fontFamily:"Inter,sans-serif"}}/>}
+                  <Area type="monotone" dataKey="bt" stroke="#c07a8a" strokeWidth={1.8} strokeDasharray="5 3"
+                    fill="url(#gNav)" dot={false} connectNulls={false}
+                    activeDot={{r:3,fill:"#c07a8a",strokeWidth:0}}/>
+                  <Area type="monotone" dataKey="liveNav" stroke="#c07a8a" strokeWidth={2.5}
+                    fill="url(#gNav)" dot={false} connectNulls={false}
+                    activeDot={{r:4,fill:"#c07a8a",strokeWidth:0}}/>
+                </>) : (<>
                 <Area type="monotone" dataKey="btc" stroke="#f7931a" strokeWidth={1.5}
                   fill="url(#gBtc)" dot={false} strokeDasharray="4 2"
                   activeDot={{r:3,fill:"#f7931a",strokeWidth:0}}/>
                 <Area type="monotone" dataKey="nav" stroke="#c07a8a" strokeWidth={2.5}
                   fill="url(#gNav)" dot={false}
                   activeDot={{r:4,fill:"#c07a8a",strokeWidth:0}}/>
+                </>)}
               </AreaChart>
             </ResponsiveContainer>
 
-            <div className="chart-caption">$1,000 invested in Elevano Capital — since Jan 2026</div>
+            <div className="chart-caption">{isBacktest
+              ? `$1,000 invested in the strategy since ${btStartLabel} — leader backtest (dashed) until Jan 2026, Elevano live (solid) since`
+              : "$1,000 invested in Elevano Capital — since Jan 2026"}</div>
 
             <div className="perf-footer">
               <div style={{color:"#b09098",marginBottom:8,fontWeight:600}}>{periodLabel}</div>
@@ -748,6 +813,7 @@ export default function App() {
               </div>
 
               {/* BTC row */}
+              {!isBacktest && (<>
               <div style={{marginBottom:6}}>
                 <strong style={{color:"#1a0f0f"}}>BTC:</strong>
                 {" "}<strong style={{color: parseFloat(btcReturn)>=0 ? "#1a9e6e" : "#e05050"}}>{btcReturnLabel}</strong>
@@ -758,6 +824,7 @@ export default function App() {
                   <span key={i} className="m-pill" style={{color: p.pos ? "#1a9e6e" : "#e05050"}}>{p.label}</span>
                 ))}
               </div>
+              </>)}
             </div>
           </div>
         </div>
@@ -768,7 +835,7 @@ export default function App() {
         <div className="stats-inner">
           {[
             {v:navReturnLabel, l:`Elevano · ${periodLabel}`, pos:parseFloat(navReturn)>=0, neg:parseFloat(navReturn)<0},
-            {v:btcReturnLabel, l:`BTC · ${periodLabel}`, pos:parseFloat(btcReturn)>=0, neg:parseFloat(btcReturn)<0},
+            {v:isBacktest ? "—" : btcReturnLabel, l:`BTC · ${periodLabel}`, pos:!isBacktest && parseFloat(btcReturn)>=0, neg:!isBacktest && parseFloat(btcReturn)<0},
             {v:trackRecord, l:"Track Record"},
             {v:alpha, l:"Alpha (ann.)", pos:true},
             {v:betaVal, l:"Beta vs BTC"},
