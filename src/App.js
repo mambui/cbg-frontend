@@ -382,9 +382,11 @@ export default function App() {
     });
     // BTC benchmark rebased to 1000 at the backtest start: backend prices for the
     // backtest period, nav_history btc_price for the live period, forward-filled.
+    // Backend prices win where both exist (they follow the 00:00 UTC convention;
+    // the early nav_history rows were backfilled with the day's close instead).
     const price = {};
-    for (const b of backtest.btc || []) price[b.date] = parseFloat(b.price);
     for (const r of navHistory) if (r.btc_price) price[r.date] = parseFloat(r.btc_price);
+    for (const b of backtest.btc || []) price[b.date] = parseFloat(b.price);
     let btcBase = null, last = null;
     for (const row of rows) {
       if (price[row.iso]) last = price[row.iso];
@@ -394,9 +396,11 @@ export default function App() {
     return rows;
   })();
   // Yearly returns on the Backtest tab, for the strategy and for BTC (the series
-  // spans several years, so monthly pills would be too long). A year is measured
-  // from the last value of the previous year to its own last value; the first year
-  // starts at its first value. Years entirely in the backtest get a dashed pill.
+  // spans several years, so monthly pills would be too long). Every value in the
+  // series is sampled at 00:00 UTC of its date (the NAV cron instant; BTC is the
+  // previous day's close), so a year runs from its Jan 1 row to the next Jan 1
+  // row — i.e. Dec 31 close to Dec 31 close — and the current year ends on the
+  // latest row. Years entirely in the backtest get a dashed pill.
   const yearlyFromCurve = (rows, key) => {
     const byYear = {};
     for (const r of rows) {
@@ -408,11 +412,13 @@ export default function App() {
     const years = Object.keys(byYear).sort();
     return years.map((y, i) => {
       const cur = byYear[y];
-      const start = i === 0 ? cur[0][key] : byYear[years[i - 1]].slice(-1)[0][key];
-      const end = cur[cur.length - 1][key];
+      const next = byYear[years[i + 1]];
+      const start = cur[0][key];
+      const end = next ? next[0][key] : cur[cur.length - 1][key];
       const ret = ((end - start) / start * 100).toFixed(2);
       const pos = parseFloat(ret) >= 0;
-      return { label: `${y} ${pos ? "+" : ""}${ret}%`, pos, bt: cur[cur.length - 1].phase === "backtest" };
+      const endRow = next ? next[0] : cur[cur.length - 1];
+      return { label: `${y} ${pos ? "+" : ""}${ret}%`, pos, bt: endRow.phase === "backtest" || endRow.phase === "junction" };
     });
   };
   const btNavPills = BT_CURVE.length ? yearlyFromCurve(BT_CURVE, "nav") : [];
