@@ -732,7 +732,7 @@ export default function App() {
           <div className="btn-row fade-up d3">
             <a href={BYBIT_LINK} target="_blank" rel="noreferrer" className="btn-primary">Copy Trade →</a>
             <a href={TELEGRAM_LINK} target="_blank" rel="noreferrer" className="btn-outline">Join Channel</a>
-            <a href="https://factsheet.elevanocapital.com" target="_blank" rel="noreferrer" className="btn-outline">Performance Report</a>
+            <a href="https://elevano-factsheet-production.up.railway.app" target="_blank" rel="noreferrer" className="btn-outline">Performance Report</a>
           </div>
         </div>
 
