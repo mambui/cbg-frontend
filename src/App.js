@@ -694,10 +694,11 @@ export default function App() {
         </div>
         <div style={{display:"flex",alignItems:"center",gap:6,fontSize:11,color:"#b09098",fontWeight:500}}>
           <span>Swiss made</span>
-          <svg viewBox="0 0 20 20" width="18" height="18" style={{borderRadius:2,flexShrink:0}}>
-            <rect width="20" height="20" fill="#FF0000"/>
-            <rect x="8.5" y="3" width="3" height="14" fill="white"/>
-            <rect x="3" y="8.5" width="14" height="3" fill="white"/>
+          {/* Official Swiss flag proportions (32x32 grid, arms 6 wide by 20 long) and federal red */}
+          <svg viewBox="0 0 32 32" width="16" height="16" style={{borderRadius:2,flexShrink:0}}>
+            <rect width="32" height="32" fill="#DA291C"/>
+            <rect x="13" y="6" width="6" height="20" fill="white"/>
+            <rect x="6" y="13" width="20" height="6" fill="white"/>
           </svg>
         </div>
         <div className="nav-right">
